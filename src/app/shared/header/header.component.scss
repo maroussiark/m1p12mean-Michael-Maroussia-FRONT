@@ -1,0 +1,80 @@
+@use '../../styles/colors' as *;
+
+header {
+  background: $gray-06;  // Exemple de variable SCSS (définie dans styles/colors.scss)
+  color: $white;
+  padding: 20px 40px;    // On augmente un peu le padding horizontal
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;  // Logo à gauche, nav à droite
+  }
+
+  .logo {
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+
+    /* Menu principal */
+    .menu {
+      list-style: none;
+      display: flex;
+      gap: 20px; // Espace entre les liens
+      align-items: center;
+      margin: 0;
+      padding: 0;
+
+      li a {
+        color: $white;
+        text-decoration: none;
+        font-weight: bold;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+
+      .btn-login {
+        background-color: $blue; // Rouge
+        color: #fff;
+        border: none;
+        border-radius: 20px;       // Forme "pill"
+        padding: 8px 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background-color: blue // Rouge un peu plus foncé au hover
+        }
+      }
+
+      .btn-signup {
+        background-color: #f2f2f2; // Gris clair
+        color: #333;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background-color: #e0e0e0; // Gris un peu plus foncé au hover
+        }
+      }
+    }
+  }
+}
