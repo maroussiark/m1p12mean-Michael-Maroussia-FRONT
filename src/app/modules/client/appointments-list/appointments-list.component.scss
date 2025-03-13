@@ -1,0 +1,93 @@
+// Déclaration des variables
+// Variables
+$primary: #e8491d;    // Couleur pour "Programmé"
+$success: #4caf50;    // Couleur pour "Effectué"
+$danger: #e74c3c;     // Couleur pour "Annulé"
+$dark: #333;
+$light: #fff;
+$gray: #f7f7f7;
+
+.appointments-list {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: $light;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.8s ease-in;
+
+  h2 {
+    text-align: center;
+    font-size: 2.8rem;
+    color: $primary;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid $primary;
+    padding-bottom: 0.5rem;
+  }
+
+  .appointments-section {
+    margin-bottom: 2rem;
+
+    h3 {
+      font-size: 2rem;
+      color: $dark;
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+      border-left: 4px solid $primary;
+    }
+
+    .appointments-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+
+      .appointment-card {
+        display: block;
+        text-decoration: none;
+        background: $gray;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .card-content {
+          h4 {
+            font-size: 1.5rem;
+            color: $dark;
+            margin-bottom: 0.5rem;
+          }
+          p {
+            font-size: 1.2rem;
+            color: $dark;
+            margin-bottom: 0.5rem;
+          }
+          .status {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: $primary;
+          }
+
+          .status.status-scheduled {
+            color: $primary;
+          }
+          .status.status-completed {
+            color: $success;
+          }
+          .status.status-cancelled {
+            color: $danger;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

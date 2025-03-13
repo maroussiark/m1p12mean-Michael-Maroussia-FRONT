@@ -1,0 +1,180 @@
+// Variables
+$primary: #e8491d;
+$info: #2196f3;
+$success: #4caf50;
+$light: #f7f7f7;
+$dark: #333;
+$border: #ccc;
+$input-bg: #fff;
+
+.profile-edit {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: $light;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  animation: fadeIn 0.8s ease-in;
+
+  h2 {
+    text-align: center;
+    font-size: 2.8rem;
+    color: $dark;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid $primary;
+    padding-bottom: 0.5rem;
+  }
+
+  .personal-info-form {
+    margin-bottom: 2.5rem;
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 250px;
+      margin-bottom: 1.2rem;
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: $dark;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.8rem;
+        background: $input-bg;
+        border: 1px solid $border;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s, box-shadow 0.3s;
+
+        &:focus {
+          border-color: $primary;
+          box-shadow: 0 0 8px rgba($primary, 0.3);
+          outline: none;
+        }
+      }
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: $primary;
+      color: #fff;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover { background: darken($primary, 8%); }
+
+      &:disabled {
+        background: $border;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .vehicles-section {
+    h3 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: $dark;
+      border-left: 4px solid $success;
+      padding-left: 1rem;
+    }
+
+    .vehicles-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+
+      .vehicle-card {
+        background: $input-bg;
+        border: 1px solid $border;
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+
+        .form-group {
+          flex: 1;
+          min-width: 150px;
+          display: flex;
+          flex-direction: column;
+
+          label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: $dark;
+          }
+
+          input {
+            padding: 0.6rem;
+            border: 1px solid $border;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+
+            &:focus {
+              border-color: $info;
+              outline: none;
+            }
+          }
+        }
+
+        .actions {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-left: auto;
+
+          button {
+            padding: 0.6rem 1rem;
+            background: $info;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s;
+
+            &:hover { background: darken($info, 8%); }
+          }
+        }
+      }
+    }
+
+    .add-vehicle {
+      display: block;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 0.8rem 1.6rem;
+      background: $success;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      &:hover { background: darken($success, 8%); }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

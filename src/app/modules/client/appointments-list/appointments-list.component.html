@@ -1,0 +1,47 @@
+<div class="appointments-list">
+  <h2>Mes Rendez-vous</h2>
+
+  <!-- Section des rendez-vous futurs -->
+  <div class="appointments-section">
+    <h3>Rendez-vous futurs</h3>
+    <div class="appointments-cards">
+      <ng-container *ngIf="futureAppointments.length; else noFuture">
+        <a *ngFor="let appointment of futureAppointments"
+           [routerLink]="['/client/appointments', appointment.id]"
+           class="appointment-card">
+          <div class="card-content">
+            <h4>{{ appointment.service }}</h4>
+            <p>{{ appointment.date | date:'fullDate' }} à {{ appointment.time }}</p>
+            <span class="status">{{ appointment.status }}</span>
+          </div>
+        </a>
+      </ng-container>
+      <ng-template #noFuture>
+        <p>Aucun rendez-vous futur.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Section des rendez-vous passés -->
+  <div class="appointments-section">
+    <h3>Rendez-vous passés</h3>
+    <div class="appointments-cards">
+      <ng-container *ngIf="pastAppointments.length; else noPast">
+        <a *ngFor="let appointment of pastAppointments"
+           [routerLink]="['/client/appointments', appointment.id]"
+           class="appointment-card">
+          <div class="card-content">
+            <h4>{{ appointment.service }}</h4>
+            <p>{{ appointment.date | date:'fullDate' }} à {{ appointment.time }}</p>
+            <span class="status" [ngClass]="getStatusClass(appointment.status)">
+            {{ appointment.status }}
+            </span>
+          </div>
+        </a>
+      </ng-container>
+      <ng-template #noPast>
+        <p>Aucun rendez-vous passé.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
