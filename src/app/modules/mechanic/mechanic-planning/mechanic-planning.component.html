@@ -1,0 +1,41 @@
+<div class="planning-container">
+  <h2>Gestion du Planning Personnel</h2>
+  <p>Indiquez vos disponibilités afin d'organiser votre emploi du temps.</p>
+
+  <form [formGroup]="planningForm" (ngSubmit)="addAvailability()" class="planning-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="day">Jour</label>
+        <select id="day" formControlName="day">
+          <option value="" disabled selected>Choisissez un jour</option>
+          <option *ngFor="let day of daysOfWeek" [value]="day">{{ day }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="startTime">Heure de début</label>
+        <input id="startTime" type="time" formControlName="startTime">
+      </div>
+      <div class="form-group">
+        <label for="endTime">Heure de fin</label>
+        <input id="endTime" type="time" formControlName="endTime">
+      </div>
+    </div>
+    <button type="submit" [disabled]="!planningForm.valid">Ajouter Disponibilité</button>
+  </form>
+
+  <div class="availabilities-list">
+    <h3>Disponibilités enregistrées</h3>
+    <div *ngIf="availabilities.length; else noAvailabilities">
+      <div class="availability-card" *ngFor="let availability of availabilities; let i = index">
+        <div class="card-content">
+          <p><strong>Jour :</strong> {{ availability.day }}</p>
+          <p><strong>De :</strong> {{ availability.startTime }} <strong>à</strong> {{ availability.endTime }}</p>
+        </div>
+        <button class="remove-button" (click)="removeAvailability(i)">Supprimer</button>
+      </div>
+    </div>
+    <ng-template #noAvailabilities>
+      <p>Aucune disponibilité enregistrée.</p>
+    </ng-template>
+  </div>
+</div>

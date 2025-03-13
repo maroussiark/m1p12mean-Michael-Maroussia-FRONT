@@ -5,6 +5,8 @@ import { NotFoundComponent } from './feature/not-found/not-found.component';
 
 const routes: Routes = [
   { path: 'client', loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule) },
+  { path: 'mechanic', loadChildren: () => import('./modules/mechanic/mechanic.module').then(m => m.MechanicModule) },
+
   { path: '', redirectTo: 'landing', pathMatch: 'full' },
   { path: 'landing', component: LandingPageComponent },
   { path: '**', component: NotFoundComponent }
