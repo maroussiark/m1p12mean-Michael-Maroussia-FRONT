@@ -22,6 +22,8 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { TokenInterceptor } from './core/interceptors/token.interceptor';
+import { ToastrModule } from 'ngx-toastr';
+
 
 registerLocaleData(fr);
 
@@ -42,7 +44,12 @@ registerLocaleData(fr);
     NzButtonModule,
     NzInputModule,
     LayoutComponent,
-    HttpClientModule
+    HttpClientModule,
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+    })
 ],
   bootstrap: [AppComponent],
   providers: [

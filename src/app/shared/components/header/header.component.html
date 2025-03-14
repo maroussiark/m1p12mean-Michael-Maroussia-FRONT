@@ -13,8 +13,14 @@
         </li>
       </ul>
       <div class="auth-buttons">
-        <button nz-button class="btn btn-login" (click)="openLoginModal()">Se connecter</button>
-        <button class="btn btn-signup" (click)="openSignupModal()">S'inscrire</button>
+        <ng-container *ngIf="isLoggedIn; else guestButtons">
+          <button class="btn btn-profile" (click)="openProfile()">Profil</button>
+          <button class="btn btn-logout" (click)="logout()">Se déconnecter</button>
+        </ng-container>
+        <ng-template #guestButtons>
+          <button class="btn btn-login" (click)="openLoginModal()">Se connecter</button>
+          <button class="btn btn-signup" (click)="openSignupModal()">S'inscrire</button>
+        </ng-template>
       </div>
     </nav>
   </div>
