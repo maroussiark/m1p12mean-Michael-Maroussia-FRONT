@@ -16,11 +16,12 @@ import { registerLocaleData } from '@angular/common';
 import fr from '@angular/common/locales/fr';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient } from '@angular/common/http';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { LayoutComponent } from './shared/components/layout/layout.component';
+import { TokenInterceptor } from './core/interceptors/token.interceptor';
 
 registerLocaleData(fr);
 
@@ -40,13 +41,16 @@ registerLocaleData(fr);
     NzModalModule,
     NzButtonModule,
     NzInputModule,
-    LayoutComponent
+    LayoutComponent,
+    HttpClientModule
 ],
   bootstrap: [AppComponent],
   providers: [
     provideNzI18n(fr_FR),
     provideAnimationsAsync(),
-    provideHttpClient()
+    provideHttpClient(),
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
+
   ]
 })
 export class AppModule { }
