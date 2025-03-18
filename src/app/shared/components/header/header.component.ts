@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from '../../../core/models/menu-item.model';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { User } from '../../../core/models/user.model';
 
 
 @Component({
@@ -11,13 +13,22 @@ import { Router, RouterModule } from '@angular/router';
   styleUrl: './header.component.scss',
 
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   @Input() menuItems: MenuItem[] = [];
   @Input() title: string = 'Garage AutoPro';
 
+
   isLoginModalOpen = false;
   isSignupModalOpen = false;
+  isLoggedIn = false;
 
+  constructor(private authService: AuthService){
+  }
+  ngOnInit(): void {
+    this.authService.currentUserSubject.subscribe((user: User | null) => {
+      this.isLoggedIn = !!user;
+    });
+  }
   openLoginModal(): void {
     this.isLoginModalOpen = true;
   }
@@ -33,5 +44,15 @@ export class HeaderComponent {
   closeSignupModal(): void {
     this.isSignupModalOpen = false;
   }
+
+  logout(): void {
+    this.authService.logout();
+    console.log('Déconnexion effectuée');
+  }
+
+  openProfile(): void {
+    console.log('Ouvrir le profil utilisateur');
+  }
+
 }
 

@@ -1,7 +1,6 @@
-@use '../../../../app/styles/colors.scss' as *;
 
 footer {
-  background: $gray-06;
+  background: var(--primary);
   color: #fff;
   text-align: center;
   padding: 20px 0;

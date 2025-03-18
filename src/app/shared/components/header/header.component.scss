@@ -1,7 +1,11 @@
 @use '../../../../app/styles/colors.scss' as *;
+$light: #f7f7f7;
+$dark: #333;
+$border: #ccc;
+$input-bg: #fff;
 
 header {
-  background: $gray-06;  // Exemple de variable SCSS (définie dans styles/colors.scss)
+  background: $primary;
   color: $white;
   padding: 20px 40px;    // On augmente un peu le padding horizontal
 
@@ -15,6 +19,7 @@ header {
     h1 {
       margin: 0;
       font-size: 1.8rem;
+      color: white;
     }
   }
 
@@ -74,6 +79,30 @@ header {
         &:hover {
           background-color: #e0e0e0; // Gris un peu plus foncé au hover
         }
+      }
+      .btn-profile {
+        background-color: $info; // Rouge
+        color: #fff;
+        border: none;
+        border-radius: 20px;       // Forme "pill"
+        padding: 8px 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.3s ease;
+
+
+      }
+      .btn-logout {
+        background-color: $danger; // Rouge
+        color: #fff;
+        border: none;
+        border-radius: 20px;       // Forme "pill"
+        padding: 8px 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.3s ease;
+
+
       }
     }
   }

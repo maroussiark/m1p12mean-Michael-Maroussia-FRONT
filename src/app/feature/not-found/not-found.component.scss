@@ -1,3 +1,5 @@
+@use "sass:color";
+
 .error-container {
   display: flex;
   flex-direction: column;
@@ -29,7 +31,7 @@
     transition: background 0.3s ease;
 
     &:hover {
-      background: darken(#e8491d, 10%);
+      background: color.scale(#e8491d, $lightness: -10%);;
     }
   }
 }

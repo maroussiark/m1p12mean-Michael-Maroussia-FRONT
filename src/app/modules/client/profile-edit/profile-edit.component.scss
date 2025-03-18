@@ -1,7 +1,4 @@
-// Variables
-$primary: #e8491d;
-$info: #2196f3;
-$success: #4caf50;
+@use "sass:color";
 $light: #f7f7f7;
 $dark: #333;
 $border: #ccc;
@@ -21,7 +18,7 @@ $input-bg: #fff;
     font-size: 2.8rem;
     color: $dark;
     margin-bottom: 2rem;
-    border-bottom: 3px solid $primary;
+    border-bottom: 3px solid var(--primary);
     padding-bottom: 0.5rem;
   }
 
@@ -56,8 +53,8 @@ $input-bg: #fff;
         transition: border-color 0.3s, box-shadow 0.3s;
 
         &:focus {
-          border-color: $primary;
-          box-shadow: 0 0 8px rgba($primary, 0.3);
+          border-color: var(--primary);
+          box-shadow: 0 0 8px rgba(var(--primary), 0.3);
           outline: none;
         }
       }
@@ -67,7 +64,7 @@ $input-bg: #fff;
       display: block;
       width: 100%;
       padding: 1rem;
-      background: $primary;
+      background: var(--primary);
       color: #fff;
       font-size: 1.2rem;
       border: none;
@@ -75,7 +72,9 @@ $input-bg: #fff;
       cursor: pointer;
       transition: background 0.3s;
 
-      &:hover { background: darken($primary, 8%); }
+      &:hover {
+         background: var(--primary-hover);
+        }
 
       &:disabled {
         background: $border;
@@ -89,7 +88,7 @@ $input-bg: #fff;
       font-size: 2rem;
       margin-bottom: 1rem;
       color: $dark;
-      border-left: 4px solid $success;
+      border-left: 4px solid var(--success);
       padding-left: 1rem;
     }
 
@@ -128,7 +127,7 @@ $input-bg: #fff;
             transition: border-color 0.3s;
 
             &:focus {
-              border-color: $info;
+              border-color: var(--info);
               outline: none;
             }
           }
@@ -142,7 +141,7 @@ $input-bg: #fff;
 
           button {
             padding: 0.6rem 1rem;
-            background: $info;
+            background: var(--info);
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -150,7 +149,9 @@ $input-bg: #fff;
             cursor: pointer;
             transition: background 0.3s;
 
-            &:hover { background: darken($info, 8%); }
+            &:hover {
+               background: var(--info-hover);
+              }
           }
         }
       }
@@ -161,7 +162,7 @@ $input-bg: #fff;
       width: fit-content;
       margin: 0 auto;
       padding: 0.8rem 1.6rem;
-      background: $success;
+      background: var(--success);
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -169,7 +170,9 @@ $input-bg: #fff;
       cursor: pointer;
       transition: background 0.3s;
 
-      &:hover { background: darken($success, 8%); }
+      &:hover {
+         background: var(--success-hover);
+        }
     }
   }
 }

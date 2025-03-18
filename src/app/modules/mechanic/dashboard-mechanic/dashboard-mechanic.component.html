@@ -1,0 +1,39 @@
+<div class="mechanic-dashboard">
+  <header class="dashboard-header">
+    <h2>Dashboard - Agenda du Mécanicien</h2>
+    <p>Accès rapide aux interventions du jour</p>
+  </header>
+
+  <!-- Section des rendez-vous assignés -->
+  <section class="assigned-appointments">
+    <h3>Rendez-vous assignés</h3>
+    <div class="appointments-grid">
+      <div class="appointment-card" *ngFor="let appointment of assignedAppointments">
+        <div class="card-content">
+          <h4>{{ appointment.service }}</h4>
+          <p>{{ appointment.date | date:'fullDate' }} à {{ appointment.time }}</p>
+          <span class="status">{{ appointment.status }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section des interventions du jour -->
+  <section class="todays-interventions">
+    <h3>Interventions du jour</h3>
+    <div *ngIf="todaysInterventions.length > 0; else noInterventions">
+      <div class="intervention-list">
+        <div class="intervention-card" *ngFor="let intervention of todaysInterventions">
+          <div class="card-content">
+            <h4>{{ intervention.service }}</h4>
+            <p>{{ intervention.time }}</p>
+          </div>
+          <button class="quick-action">Démarrer</button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noInterventions>
+      <p>Aucune intervention prévue pour aujourd'hui.</p>
+    </ng-template>
+  </section>
+</div>
