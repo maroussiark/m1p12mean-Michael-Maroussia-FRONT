@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login-bo',
-  imports: [ReactiveFormsModule],
   templateUrl: './login-bo.component.html',
-  styleUrl: './login-bo.component.scss'
+  styleUrl: './login-bo.component.scss',
+  standalone: false
 })
 export class LoginBoComponent {
   loginForm!: FormGroup;

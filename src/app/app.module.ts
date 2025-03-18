@@ -1,3 +1,4 @@
+import { AuthenticationModule } from './modules/authentication/authentication.module';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
@@ -8,8 +9,6 @@ import { AppRoutingModule } from './app.routes';
 import { LandingPageComponent } from './feature/landing-page/landing-page.component';
 import { FooterComponent } from "./shared/components/footer/footer.component";
 import { SharedModule } from "./shared/shared.module";
-import { provideNzI18n } from 'ng-zorro-antd/i18n';
-import { fr_FR } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import fr from '@angular/common/locales/fr';
 import { FormsModule } from '@angular/forms';
@@ -37,13 +36,13 @@ registerLocaleData(fr);
     HttpClientModule,
     ToastrModule.forRoot({
       timeOut: 3000,
-      positionClass: 'toast-top-right',
+      positionClass: 'toast-bottom-center',
       preventDuplicates: true,
-    })
+    }),
+    AuthenticationModule
 ],
   bootstrap: [AppComponent],
   providers: [
-    provideNzI18n(fr_FR),
     provideAnimationsAsync(),
     provideHttpClient(),
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }

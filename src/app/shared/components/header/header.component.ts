@@ -4,6 +4,7 @@ import { MenuItem } from '../../../core/models/menu-item.model';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/user.model';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Component({
@@ -22,7 +23,11 @@ export class HeaderComponent implements OnInit {
   isSignupModalOpen = false;
   isLoggedIn = false;
 
-  constructor(private authService: AuthService){
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+     private toastr: ToastrService
+  ){
   }
   ngOnInit(): void {
     this.authService.currentUserSubject.subscribe((user: User | null) => {
@@ -47,11 +52,24 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/auth']);
     console.log('Déconnexion effectuée');
+    this.toastr.success('Déconnexion effectuée');
+
   }
 
   openProfile(): void {
     console.log('Ouvrir le profil utilisateur');
+  }
+
+  setSignUp(): void {
+    this.authService.setSignUp(true);
+    this.router.navigate(['/auth']);
+  }
+
+  setSignIn(): void {
+    this.authService.setSignUp(false);
+    this.router.navigate(['/auth']);
   }
 
 }

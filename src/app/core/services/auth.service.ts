@@ -11,6 +11,8 @@ import { ApiService } from './api.service';
 export class AuthService {
   public currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
+  private _isSignUp$ = new BehaviorSubject<boolean>(false);
+  public isSignUp$ = this._isSignUp$.asObservable();
 
   constructor(private apiService: ApiService) {
     const userFromStorage = localStorage.getItem('currentUser');
@@ -38,5 +40,9 @@ export class AuthService {
     // Supprimer l'utilisateur et le token du localStorage
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
+  }
+
+  setSignUp(isSignUp: boolean): void {
+    this._isSignUp$.next(isSignUp);
   }
 }
