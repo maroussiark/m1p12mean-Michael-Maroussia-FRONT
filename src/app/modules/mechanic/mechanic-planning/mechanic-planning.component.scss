@@ -1,5 +1,4 @@
 // Variables
-$primary: #e8491d;
 $dark: #333;
 $light: #fff;
 $border: #ccc;
@@ -17,9 +16,9 @@ $bg: #f0f2f5;
   h2 {
     text-align: center;
     font-size: 2.8rem;
-    color: $primary;
+    color: var(--primary);
     margin-bottom: 1rem;
-    border-bottom: 2px solid $primary;
+    border-bottom: 2px solid var(--primary);
     padding-bottom: 0.5rem;
   }
 
@@ -54,7 +53,7 @@ $bg: #f0f2f5;
           border-radius: 6px;
           transition: border-color 0.3s;
           &:focus {
-            border-color: $primary;
+            border-color: var(--primary);
             outline: none;
           }
         }
@@ -64,7 +63,7 @@ $bg: #f0f2f5;
     button {
       width: 100%;
       padding: 1rem;
-      background: $primary;
+      background: var(--primary);
       color: #fff;
       font-size: 1.2rem;
       border: none;
@@ -72,7 +71,7 @@ $bg: #f0f2f5;
       cursor: pointer;
       transition: background 0.3s;
       &:hover {
-        background: darken($primary, 8%);
+        background: var(--primary-hover)
       }
       &:disabled {
         background: #ccc;
@@ -87,7 +86,7 @@ $bg: #f0f2f5;
       font-size: 1.8rem;
       color: $dark;
       margin-bottom: 1rem;
-      border-bottom: 2px solid $primary;
+      border-bottom: 2px solid var(--primary);
       padding-bottom: 0.5rem;
     }
 
@@ -112,13 +111,13 @@ $bg: #f0f2f5;
           font-size: 1.1rem;
           color: $dark;
           strong {
-            color: $primary;
+            color: var(--primary);
           }
         }
       }
 
       .remove-button {
-        background: #e74c3c;
+        background: var(--danger);
         border: none;
         padding: 0.5rem 1rem;
         border-radius: 4px;
@@ -127,7 +126,7 @@ $bg: #f0f2f5;
         cursor: pointer;
         transition: background 0.3s;
         &:hover {
-          background: darken(#e74c3c, 8%);
+          background: var(--danger-hover);
         }
       }
     }

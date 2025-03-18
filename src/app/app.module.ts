@@ -33,16 +33,11 @@ registerLocaleData(fr);
   imports: [
     BrowserModule,
     RouterModule,
-    MatCardModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatToolbarModule,
     FooterComponent,
     SharedModule,
     FormsModule,
-    NzModalModule,
-    NzButtonModule,
-    NzInputModule,
     LayoutComponent,
     HttpClientModule,
     ToastrModule.forRoot({

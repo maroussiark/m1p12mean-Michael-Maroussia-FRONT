@@ -1,5 +1,4 @@
-// Variables
-$primary: #e8491d;
+@use "sass:color";
 $dark: #333;
 $light: #fff;
 $border: #ccc;
@@ -16,9 +15,9 @@ $border: #ccc;
   h2 {
     text-align: center;
     font-size: 2.5rem;
-    color: $primary;
+    color: var(--primary);
     margin-bottom: 1.5rem;
-    border-bottom: 2px solid $primary;
+    border-bottom: 2px solid var(--primary);
     padding-bottom: 0.5rem;
   }
 
@@ -29,7 +28,7 @@ $border: #ccc;
       color: $dark;
 
       strong {
-        color: $primary;
+        color: var(--primary);
       }
     }
   }
@@ -42,14 +41,14 @@ $border: #ccc;
       display: inline-block;
       margin: 0 1rem;
       padding: 0.8rem 1.8rem;
-      background: $primary;
+      background: var(--primary);
       color: #fff;
       text-decoration: none;
       border-radius: 6px;
       transition: background 0.3s;
 
       &:hover {
-        background: darken($primary, 8%);
+        background: var(--primary-hover);
       }
     }
   }

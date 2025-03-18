@@ -1,6 +1,19 @@
 /* src/styles.scss */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
+:root {
+  --primary: #2C3E50;
+  --info: #3498DB;
+  --success: #2ECC71;
+  --warning: #F39C12;
+  --danger: #E74C3C;
+  --primary-hover: #243447;  /* Variante plus sombre de #2C3E50 */
+  --info-hover: #2C80B4;     /* Variante plus sombre de #3498DB */
+  --success-hover: #27AE60;  /* Variante plus sombre de #2ECC71 */
+  --warning-hover: #D68910;  /* Variante plus sombre de #F39C12 */
+  --danger-hover: #C0392B;   /* Variante plus sombre de #E74C3C */
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -13,3 +26,5 @@ body {
   background: #f4f4f4;
   color: #333;
 }
+
+

@@ -1,8 +1,3 @@
-// Déclaration des variables
-// Variables
-$primary: #e8491d;    // Couleur pour "Programmé"
-$success: #4caf50;    // Couleur pour "Effectué"
-$danger: #e74c3c;     // Couleur pour "Annulé"
 $dark: #333;
 $light: #fff;
 $gray: #f7f7f7;
@@ -19,9 +14,9 @@ $gray: #f7f7f7;
   h2 {
     text-align: center;
     font-size: 2.8rem;
-    color: $primary;
+    color: var(--primary);
     margin-bottom: 1.5rem;
-    border-bottom: 2px solid $primary;
+    border-bottom: 2px solid var(--primary);
     padding-bottom: 0.5rem;
   }
 
@@ -33,7 +28,7 @@ $gray: #f7f7f7;
       color: $dark;
       margin-bottom: 1rem;
       padding-left: 1rem;
-      border-left: 4px solid $primary;
+      border-left: 4px solid var(--primary);
     }
 
     .appointments-cards {
@@ -69,17 +64,17 @@ $gray: #f7f7f7;
           .status {
             font-size: 1.1rem;
             font-style: italic;
-            color: $primary;
+            color: var(--primary);
           }
 
           .status.status-scheduled {
-            color: $primary;
+            color: var(--primary);
           }
           .status.status-completed {
-            color: $success;
+            color: var(--success);
           }
           .status.status-cancelled {
-            color: $danger;
+            color: var(--danger);
           }
         }
       }

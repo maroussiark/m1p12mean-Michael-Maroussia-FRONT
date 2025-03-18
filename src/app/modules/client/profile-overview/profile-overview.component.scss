@@ -1,6 +1,4 @@
-// Variables
-$primary: #e8491d;
-$secondary: #4caf50;
+
 $bg-gradient: linear-gradient(135deg, #fdfbfb, #ebedee);
 $card-bg: #ffffff;
 $text-color: #333;
@@ -21,8 +19,8 @@ $subtext: #555;
 
     h2 {
       font-size: 2.8rem;
-      color: $primary;
-      border-bottom: 3px solid $primary;
+      color: var(--primary);
+      border-bottom: 3px solid var(--primary);
       display: inline-block;
       padding-bottom: 0.5rem;
     }
@@ -44,14 +42,14 @@ $subtext: #555;
       font-size: 2rem;
       margin-bottom: 1rem;
       color: $text-color;
-      border-left: 4px solid $primary;
+      border-left: 4px solid var(--primary);
       padding-left: 0.8rem;
     }
     p {
       font-size: 1.2rem;
       margin: 0.6rem 0;
       color: $text-color;
-      strong { color: $primary; }
+      strong { color: var(--primary); }
     }
   }
 
@@ -60,7 +58,7 @@ $subtext: #555;
       font-size: 2rem;
       margin-bottom: 1rem;
       color: $text-color;
-      border-left: 4px solid $secondary;
+      border-left: 4px solid var(--info);
       padding-left: 0.8rem;
     }
     ul {
@@ -86,14 +84,16 @@ $subtext: #555;
 
     .btn-edit {
       padding: 0.8rem 1.8rem;
-      background: $primary;
+      background: var(--primary);
       color: #fff;
       text-decoration: none;
       border-radius: 6px;
       font-size: 1.2rem;
       transition: background 0.3s;
 
-      &:hover { background: darken($primary, 8%); }
+      &:hover {
+        background: var(--primary-hover);
+      }
     }
   }
 }

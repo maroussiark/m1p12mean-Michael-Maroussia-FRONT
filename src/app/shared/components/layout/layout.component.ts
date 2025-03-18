@@ -10,11 +10,9 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  // Vous pouvez définir ici un menu commun à toutes les pages authentifiées
   menuItems: MenuItem[] = [
     { label: 'Dashboard', link: '/dashboard' },
     { label: 'Mon Profil', link: '/profile' },
     { label: 'Rendez-vous', link: '/appointments' },
-    { label: 'Déconnexion', link: '/logout' }
   ];
 }

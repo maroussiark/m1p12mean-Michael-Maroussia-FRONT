@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { User } from '../models/user.model';
+import { ApiService } from './api.service';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl;
   public currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 
-  constructor(private http: HttpClient) {
+  constructor(private apiService: ApiService) {
     const userFromStorage = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<User | null>(
       userFromStorage ? JSON.parse(userFromStorage) : null
@@ -27,7 +25,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/auth/login`, { email, password })
+    return this.apiService.post<User>('/auth/login', { email, password })
       .pipe(
         tap(user => {
           localStorage.setItem('currentUser', JSON.stringify(user));
