@@ -6,6 +6,7 @@ import { AuthGuard } from './core/guards/auth.guards';
 import { LoginBoComponent } from './modules/back-office/login-bo/login-bo.component';
 
 const routes: Routes = [
+  { path: 'admin', canActivate: [AuthGuard], loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule)},
   { path: 'client',canActivate: [AuthGuard], loadChildren: () => import('./modules/client/client.module').then(m => m.ClientModule) },
   { path: 'mechanic', loadChildren: () => import('./modules/mechanic/mechanic.module').then(m => m.MechanicModule) },
   {path:'bo', component: LoginBoComponent},

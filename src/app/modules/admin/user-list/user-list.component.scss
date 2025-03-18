@@ -1,0 +1,91 @@
+.users-list-container {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--primary);
+    }
+  
+    .add-user-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: background 0.3s;
+  
+      &:hover {
+        background: var(--primary-hover);
+      }
+    }
+  
+    .users-list {
+      .user-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+        .user-info {
+          p {
+            margin: 0.3rem 0;
+            font-size: 1rem;
+            color: #333;
+            strong {
+              color: var(--primary);
+            }
+          }
+        }
+  
+        .actions {
+          display: flex;
+          gap: 0.5rem;
+  
+          .edit-btn {
+            background: var(--secondary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+  
+            &:hover {
+              background: var(--secondary-hover);
+            }
+          }
+  
+          .delete-btn {
+            background: var(--danger);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+  
+            &:hover {
+              background: var(--danger-hover);
+            }
+          }
+        }
+      }
+    }
+  }
+  
