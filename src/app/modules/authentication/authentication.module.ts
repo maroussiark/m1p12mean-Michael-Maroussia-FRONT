@@ -6,6 +6,7 @@ import { AuthRoutingModule } from './authentication-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 
 
 
@@ -15,7 +16,8 @@ import { MessageService } from 'primeng/api';
     CommonModule,
     AuthRoutingModule,
     ReactiveFormsModule,
-    ToastModule
+    ToastModule,
+    ButtonModule
   ],
   providers: [MessageService],
   exports: [AuthComponent]
