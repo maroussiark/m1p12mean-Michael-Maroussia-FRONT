@@ -17,7 +17,7 @@ import { RippleModule } from 'primeng/ripple';
                 <button pButton pRipple [rounded]="true" type="button" label="Get Started" class="!text-xl mt-8 !px-4"></button>
             </div>
             <div class="flex justify-center md:justify-end">
-                <img src="https://i.pinimg.com/736x/df/e0/5f/dfe05f5c9e323a80a28c04cb7876ad04.jpg" alt="Hero Image" class="w-9/12 md:w-auto" />
+                <img src="assets/images/0.jpg" alt="Hero Image" class="w-9/12 md:w-auto  rounded-lg" />
             </div>
         </div>
     `
