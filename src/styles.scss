@@ -1,5 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
-@use './tailwind.css';
-@use './assets/layout/layout.scss';
-@use 'primeicons/primeicons.css';
-@use './assets/demo/demo.scss';
+/* src/styles.scss */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+  --primary: #2C3E50;
+  --info: #3498DB;
+  --success: #2ECC71;
+  --warning: #F39C12;
+  --danger: #E74C3C;
+  --primary-hover: #243447;  /* Variante plus sombre de #2C3E50 */
+  --info-hover: #2C80B4;     /* Variante plus sombre de #3498DB */
+  --success-hover: #27AE60;  /* Variante plus sombre de #2ECC71 */
+  --warning-hover: #D68910;  /* Variante plus sombre de #F39C12 */
+  --danger-hover: #C0392B;   /* Variante plus sombre de #E74C3C */
+  --toastr-background: #2C3E50;    /* Couleur principale */
+  --toastr-color: #fff;            /* Couleur du texte */
+  --toastr-border-radius: 8px;
+  --toastr-padding: 1rem;
+  --toastr-box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto',Arial, sans-serif;
+  line-height: 1.6;
+  background: #f4f4f4;
+  color: #333;
+}
+.toast {
+  background-color: var(--toastr-background) !important;
+  color: var(--toastr-color) !important;
+  border-radius: var(--toastr-border-radius);
+  padding: var(--toastr-padding);
+  box-shadow: var(--toastr-box-shadow);
+  font-size: 16px;
+}
+
+.toast-message {
+  font-size: 16px;
+}
