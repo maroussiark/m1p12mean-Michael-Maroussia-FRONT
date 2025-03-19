@@ -4,6 +4,8 @@ import { LoginBoComponent } from './login-bo/login-bo.component';
 import { AuthComponent } from './auth/auth.component';
 import { AuthRoutingModule } from './authentication-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 
 
@@ -12,8 +14,10 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     AuthRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ToastModule
   ],
+  providers: [MessageService],
   exports: [AuthComponent]
 })
 export class AuthenticationModule { }

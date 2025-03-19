@@ -3,6 +3,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 
 @Component({
@@ -19,7 +20,8 @@ export class AuthComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -47,10 +49,20 @@ export class AuthComponent implements OnInit, OnDestroy {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe(
         user => {
-          this.router.navigate(['/client']);
+          this.router.navigate(['/']);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Connexion réussie',
+            detail: 'Bienvenue'
+        });
         },
         error => {
           console.error('Erreur de connexion', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur de connexion',
+            detail: 'Veuillez réessayez'
+        });
         }
       );
     }
