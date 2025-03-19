@@ -3,7 +3,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-auth',
@@ -19,8 +19,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -48,12 +47,10 @@ export class AuthComponent implements OnInit, OnDestroy {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe(
         user => {
-          this.toastr.success('Connexion réussie', 'Bienvenue');
           this.router.navigate(['/client']);
         },
         error => {
           console.error('Erreur de connexion', error);
-          this.toastr.error('Erreur de connexion', 'Veuillez réessayer');
         }
       );
     }

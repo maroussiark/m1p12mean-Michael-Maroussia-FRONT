@@ -3,11 +3,11 @@
 }
 
 body {
-	background: linear-gradient(45deg, var(--primary), var(--info));
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
+    margin-top: 5%;
 }
 
 h1 {
@@ -17,7 +17,7 @@ h1 {
 
 h2 {
 	text-align: center;
-  color: var(--primary);
+  color: #2C3E50;
 }
 
 p {
@@ -26,16 +26,16 @@ p {
 	line-height: 20px;
 	letter-spacing: 0.5px;
 	margin: 20px 0 30px;
-  color: var(--primary);
+  color: #2C3E50;
 }
 
 span {
 	font-size: 12px;
-  color: var(--primary);
+  color: #2C3E50;
 }
 
 a {
-  color: var(--primary);
+  color: #2C3E50;
 	font-size: 14px;
 	text-decoration: none;
 	margin: 15px 0;
@@ -43,8 +43,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid var(--info);
-	background-color: var(--info);
+	border: 1px solid #2C3E50;
+	background-color: #2C3E50;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -157,7 +157,7 @@ input {
 }
 
 .overlay {
-	background: linear-gradient(to right, var(--info), var(--success));
+	background: linear-gradient(to right, #3498DB,#2ECC71);
   background-repeat: no-repeat;
   background-size: cover;
 	background-position: 0 0;

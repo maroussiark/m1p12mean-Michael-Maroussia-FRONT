@@ -1,3 +1,4 @@
+import { AuthenticationModule } from './app/modules/authentication/authentication.module';
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { Dashboard } from './app/pages/dashboard/dashboard';
@@ -7,7 +8,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 
 export const appRoutes: Routes = [
     {
-        path: '',
+        path: 'template',
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
@@ -16,8 +17,8 @@ export const appRoutes: Routes = [
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
-    { path: 'landing', component: Landing },
+    { path: '', component: Landing },
     { path: 'notfound', component: Notfound },
-    { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
+    { path: 'auth', loadChildren: () => import('./app/modules/authentication/authentication.module').then(m => m.AuthenticationModule) },
     { path: '**', redirectTo: '/notfound' }
 ];
