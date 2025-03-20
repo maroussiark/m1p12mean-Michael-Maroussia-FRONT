@@ -18,9 +18,7 @@ export class TokenInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          // Si l'utilisateur n'est pas autorisé, on peut le déconnecter ou le rediriger
           this.authService.logout();
-          // Optionnel : rediriger vers la page de login
         }
         return throwError(error);
       })
