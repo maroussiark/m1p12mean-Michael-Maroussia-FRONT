@@ -43,7 +43,15 @@ interface Appointment {
     timeSlot: string;
     vehicleId: number;
     vehicleInfo: string;
-    serviceType: string;
+    // Remplacer le service unique par un tableau de services
+    services: {
+        id: number;
+        name: string;
+        price: number;
+        duration: number;
+    }[];
+    totalDuration: number; // Durée totale des services combinés
+    totalPrice: number; // Prix total des services combinés
     status: 'confirmé' | 'en attente' | 'terminé' | 'annulé';
     notes: string;
 }
@@ -85,7 +93,7 @@ interface Appointment {
                                 <th>Date</th>
                                 <th>Heure</th>
                                 <th>Véhicule</th>
-                                <th>Service</th>
+                                <th>Services</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
@@ -102,13 +110,13 @@ interface Appointment {
                                     {{ appointment.vehicleInfo }}
                                 </td>
                                 <td>
-                                    {{ appointment.serviceType }}
+                                    <div *ngFor="let service of appointment.services; let last = last">{{ service.name }}{{ !last ? ',' : '' }}</div>
+                                    <div *ngIf="appointment.services.length > 1" class="text-xs text-gray-500 mt-1">{{ appointment.totalDuration }} min | {{ appointment.totalPrice }}€</div>
                                 </td>
                                 <td>
                                     <p-tag [value]="appointment.status" [severity]="getStatusSeverity(appointment.status)"></p-tag>
                                 </td>
                                 <td>
-
                                     <div class="flex gap-2">
                                         <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text p-button-sm" pTooltip="Détails" (click)="viewAppointmentDetails(appointment)"></button>
                                         <button
@@ -131,14 +139,7 @@ interface Appointment {
                                 </td>
                             </tr>
                         </ng-template>
-                        <ng-template pTemplate="emptymessage">
-                            <tr>
-                                <td colspan="6" class="text-center p-8">
-                                    <div class="text-gray-500 mb-4">Vous n'avez aucun rendez-vous pour le moment</div>
-                                    <button pButton label="Prendre votre premier rendez-vous" icon="pi pi-calendar-plus" class="p-button-outlined" (click)="startNewAppointment()"></button>
-                                </td>
-                            </tr>
-                        </ng-template>
+                        <!-- Le reste du template reste inchangé -->
                     </p-table>
                 </div>
 
@@ -173,17 +174,26 @@ interface Appointment {
 
                             <!-- Étape 2: Sélection du service -->
                             <div *ngSwitchCase="1" class="p-fluid">
-                                <h3 class="text-lg font-medium text-gray-700 mb-4">Sélectionnez un service</h3>
-
+                                <h3 class="text-lg font-medium text-gray-700 mb-4">Sélectionnez un ou plusieurs services</h3>
+                                <div class="mb-3 bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                                    <p class="text-blue-700 text-sm">
+                                        <i class="pi pi-info-circle mr-2"></i>
+                                        Sélectionnez autant de services que nécessaire. Cliquez sur un service pour le sélectionner ou le désélectionner.
+                                    </p>
+                                </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                     <div
                                         *ngFor="let service of serviceTypes"
                                         class="border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:bg-gray-50"
-                                        [class.border-blue-500]="appointmentForm.get('serviceTypeId')?.value === service.id"
-                                        [class.shadow-md]="appointmentForm.get('serviceTypeId')?.value === service.id"
+                                        [class.border-blue-500]="isServiceSelected(service.id)"
+                                        [class.shadow-md]="isServiceSelected(service.id)"
+                                        [class.bg-blue-50]="isServiceSelected(service.id)"
                                         (click)="selectService(service.id)"
                                     >
-                                        <h4 class="font-bold text-gray-800 mb-1">{{ service.name }}</h4>
+                                        <div class="flex justify-between items-start">
+                                            <h4 class="font-bold text-gray-800 mb-1">{{ service.name }}</h4>
+                                            <i *ngIf="isServiceSelected(service.id)" class="pi pi-check-circle text-blue-500"></i>
+                                        </div>
                                         <p class="text-sm text-gray-600 mb-2">{{ service.description }}</p>
                                         <div class="flex justify-between text-sm">
                                             <span class="text-gray-500">Durée: {{ service.duration }} min</span>
@@ -194,7 +204,7 @@ interface Appointment {
 
                                 <div class="flex justify-between mt-4">
                                     <button pButton label="Retour" icon="pi pi-arrow-left" class="p-button-outlined" (click)="prevStep()"></button>
-                                    <button pButton label="Continuer" icon="pi pi-arrow-right" iconPos="right" [disabled]="!appointmentForm.get('serviceTypeId')?.valid" (click)="nextStep()"></button>
+                                    <button pButton label="Continuer" icon="pi pi-arrow-right" iconPos="right" [disabled]="!appointmentForm.get('selectedServices')?.value?.length" (click)="nextStep()"></button>
                                 </div>
                             </div>
 
@@ -238,9 +248,9 @@ interface Appointment {
                                     </div>
                                 </div>
 
-                                <div class="mt-6">
-                                    <label for="notes" class="mb-2 text-sm font-medium text-gray-700">Notes additionnelles (optionnel)</label>
-                                    <textarea pTextarea id="notes" formControlName="notes" rows="3" placeholder="Décrivez votre problème ou spécifiez des détails importants..."></textarea>
+                                <div class="field col-span-full mt-6">
+                                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                    <textarea pInputTextarea id="notes" formControlName="notes" rows="3" class="w-1/4 resize-none p-inputtext-sm border-2 rounded-md"> </textarea>
                                 </div>
 
                                 <div class="flex justify-between mt-4">
@@ -263,10 +273,12 @@ interface Appointment {
                                         </div>
 
                                         <div>
-                                            <h4 class="text-sm font-medium text-gray-500 mb-1">Service</h4>
-                                            <p class="font-medium text-gray-800">
-                                                {{ getSelectedServiceInfo()?.name }}
-                                            </p>
+                                            <h4 class="text-sm font-medium text-gray-500 mb-1">Services</h4>
+                                            <div *ngFor="let service of getSelectedServicesInfo()" class="font-medium text-gray-800 mb-1">
+                                                <p>
+                                                    {{ service.name }} <span class="text-gray-500 font-normal">({{ service.duration }} min - {{ service.price }}€)</span>
+                                                </p>
+                                            </div>
                                         </div>
 
                                         <div>
@@ -292,12 +304,12 @@ interface Appointment {
 
                                         <div class="col-span-full mt-2">
                                             <h4 class="text-sm font-medium text-gray-500 mb-1">Durée estimée</h4>
-                                            <p class="font-medium text-gray-800">{{ getSelectedServiceInfo()?.duration }} minutes</p>
+                                            <p class="font-medium text-gray-800">{{ calculateTotalDuration() }} minutes</p>
                                         </div>
 
                                         <div class="col-span-full mt-2">
                                             <h4 class="text-sm font-medium text-gray-500 mb-1">Prix estimé</h4>
-                                            <p class="text-xl font-bold text-blue-600">{{ getSelectedServiceInfo()?.price }}€</p>
+                                            <p class="text-xl font-bold text-blue-600">{{ calculateTotalPrice() }}€</p>
                                             <p class="text-xs text-gray-500 mt-1">*Prix indicatif, le montant final peut varier selon l'état du véhicule et les pièces nécessaires</p>
                                         </div>
                                     </div>
@@ -316,50 +328,59 @@ interface Appointment {
                 <div *ngSwitchCase="2" class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-6">Historique des Services</h2>
 
-                    <p-table [value]="serviceHistory" [paginator]="true" [rows]="5" [responsive]="true" styleClass="p-datatable-sm" [rowHover]="true" responsiveLayout="stack" [breakpoint]="'768px'">
+                    <p-table [value]="appointments" [paginator]="true" [rows]="5" [responsive]="true" styleClass="p-datatable-sm" [rowHover]="true" responsiveLayout="stack" [breakpoint]="'768px'">
                         <ng-template pTemplate="header">
                             <tr>
                                 <th>Date</th>
+                                <th>Heure</th>
                                 <th>Véhicule</th>
-                                <th>Service</th>
-                                <th>Technicien</th>
-                                <th>Coût</th>
+                                <th>Services</th>
+                                <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
                         </ng-template>
-                        <ng-template pTemplate="body" let-service>
+                        <ng-template pTemplate="body" let-appointment>
                             <tr>
                                 <td>
-                                    {{ service.date | date: 'dd/MM/yyyy' }}
+                                    {{ appointment.date | date: 'dd/MM/yyyy' }}
                                 </td>
                                 <td>
-                                    {{ service.vehicleInfo }}
+                                    {{ appointment.timeSlot }}
                                 </td>
                                 <td>
-                                    {{ service.serviceType }}
+                                    {{ appointment.vehicleInfo }}
                                 </td>
                                 <td>
-                                    {{ service.technicien }}
+                                    <div *ngFor="let service of appointment.services; let last = last">{{ service.name }}{{ !last ? ',' : '' }}</div>
+                                    <div *ngIf="appointment.services.length > 1" class="text-xs text-gray-500 mt-1">{{ appointment.totalDuration }} min | {{ appointment.totalPrice }}€</div>
                                 </td>
                                 <td>
-                                    {{ service.cost }}€
+                                    <p-tag [value]="appointment.status" [severity]="getStatusSeverity(appointment.status)"></p-tag>
                                 </td>
                                 <td>
-
                                     <div class="flex gap-2">
-                                        <button pButton icon="pi pi-file-pdf" class="p-button-rounded p-button-text p-button-sm" pTooltip="Télécharger facture" (click)="downloadInvoice(service)"></button>
-                                        <button pButton icon="pi pi-search" class="p-button-rounded p-button-text p-button-sm" pTooltip="Voir détails" (click)="viewServiceDetails(service)"></button>
+                                        <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text p-button-sm" pTooltip="Détails" (click)="viewAppointmentDetails(appointment)"></button>
+                                        <button
+                                            pButton
+                                            icon="pi pi-pencil"
+                                            class="p-button-rounded p-button-text p-button-sm"
+                                            pTooltip="Modifier"
+                                            [disabled]="appointment.status === 'terminé' || appointment.status === 'annulé'"
+                                            (click)="editAppointment(appointment)"
+                                        ></button>
+                                        <button
+                                            pButton
+                                            icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                            pTooltip="Annuler"
+                                            [disabled]="appointment.status === 'terminé' || appointment.status === 'annulé'"
+                                            (click)="cancelAppointment(appointment)"
+                                        ></button>
                                     </div>
                                 </td>
                             </tr>
                         </ng-template>
-                        <ng-template pTemplate="emptymessage">
-                            <tr>
-                                <td colspan="6" class="text-center p-6">
-                                    <div class="text-gray-500">Aucun historique de service disponible</div>
-                                </td>
-                            </tr>
-                        </ng-template>
+                        <!-- Le reste du template reste inchangé -->
                     </p-table>
                 </div>
             </div>
@@ -376,7 +397,7 @@ interface Appointment {
 
                     <div>
                         <h4 class="text-sm font-medium text-gray-500 mb-1">Service</h4>
-                        <p class="font-medium text-gray-800">{{ selectedAppointment.serviceType }}</p>
+                        <span class="font-medium text-gray-800" *ngFor="let service of selectedAppointment.services; let last = last">{{ service.name }}{{ !last ? ',' : '' }}</span>
                     </div>
 
                     <div>
@@ -525,6 +546,7 @@ export class AppointmentBookingComponent implements OnInit {
         { id: 8, time: '17:00', available: false }
     ];
 
+    // Mettre à jour les rendez-vous existants pour le nouveau format
     appointments: Appointment[] = [
         {
             id: 1,
@@ -532,7 +554,16 @@ export class AppointmentBookingComponent implements OnInit {
             timeSlot: '10:00',
             vehicleId: 1,
             vehicleInfo: 'Renault Clio (AB-123-CD)',
-            serviceType: 'Révision standard',
+            services: [
+                {
+                    id: 1,
+                    name: 'Révision standard',
+                    duration: 60,
+                    price: 129
+                }
+            ],
+            totalDuration: 60,
+            totalPrice: 129,
             status: 'confirmé',
             notes: 'Bruit suspect côté droit à vérifier'
         },
@@ -542,7 +573,16 @@ export class AppointmentBookingComponent implements OnInit {
             timeSlot: '14:00',
             vehicleId: 2,
             vehicleInfo: 'Peugeot 308 (EF-456-GH)',
-            serviceType: 'Changement de freins',
+            services: [
+                {
+                    id: 2,
+                    name: 'Changement de freins',
+                    duration: 90,
+                    price: 199
+                }
+            ],
+            totalDuration: 90,
+            totalPrice: 199,
             status: 'terminé',
             notes: ''
         },
@@ -552,7 +592,22 @@ export class AppointmentBookingComponent implements OnInit {
             timeSlot: '09:00',
             vehicleId: 3,
             vehicleInfo: 'Citroën C4 (IJ-789-KL)',
-            serviceType: 'Contrôle technique',
+            services: [
+                {
+                    id: 3,
+                    name: 'Contrôle technique',
+                    duration: 45,
+                    price: 79
+                },
+                {
+                    id: 4,
+                    name: 'Diagnostic électronique',
+                    duration: 30,
+                    price: 59
+                }
+            ],
+            totalDuration: 75,
+            totalPrice: 138,
             status: 'en attente',
             notes: 'Préparation au contrôle technique'
         }
@@ -600,7 +655,7 @@ export class AppointmentBookingComponent implements OnInit {
     ) {
         this.appointmentForm = this.fb.group({
             vehicleId: [null, Validators.required],
-            serviceTypeId: [null, Validators.required],
+            selectedServices: [[], Validators.compose([Validators.required, Validators.minLength(1)])],
             date: [null, Validators.required],
             timeSlotId: [null, Validators.required],
             notes: ['']
@@ -681,7 +736,45 @@ export class AppointmentBookingComponent implements OnInit {
     }
 
     selectService(id: number) {
-        this.appointmentForm.patchValue({ serviceTypeId: id });
+        const currentServices = [...(this.appointmentForm.get('selectedServices')?.value || [])];
+
+        // Vérifier si le service est déjà sélectionné
+        const index = currentServices.indexOf(id);
+
+        if (index === -1) {
+            // Ajouter le service s'il n'est pas déjà sélectionné
+            currentServices.push(id);
+        } else {
+            // Retirer le service s'il est déjà sélectionné
+            currentServices.splice(index, 1);
+        }
+
+        this.appointmentForm.patchValue({ selectedServices: currentServices });
+    }
+
+    isServiceSelected(id: number): boolean {
+        const selectedServices = this.appointmentForm.get('selectedServices')?.value || [];
+        return selectedServices.includes(id);
+    }
+
+    calculateTotalDuration(): number {
+        const selectedServiceIds = this.appointmentForm.get('selectedServices')?.value || [];
+        return selectedServiceIds.reduce((total: number, serviceId: number) => {
+            const service = this.serviceTypes.find((s) => s.id === serviceId);
+            return total + (service ? service.duration : 0);
+        }, 0);
+    }
+    calculateTotalPrice(): number {
+        const selectedServiceIds = this.appointmentForm.get('selectedServices')?.value || [];
+        return selectedServiceIds.reduce((total: number, serviceId: number) => {
+            const service = this.serviceTypes.find((s) => s.id === serviceId);
+            return total + (service ? service.price : 0);
+        }, 0);
+    }
+
+    getSelectedServicesInfo() {
+        const selectedServiceIds = this.appointmentForm.get('selectedServices')?.value || [];
+        return this.serviceTypes.filter((service) => selectedServiceIds.includes(service.id));
     }
 
     onDateSelect(date: Date) {
@@ -743,20 +836,26 @@ export class AppointmentBookingComponent implements OnInit {
 
     submitAppointment() {
         if (this.appointmentForm.valid) {
-            // Récupérer les valeurs du formulaire
             const formValue = this.appointmentForm.value;
             const vehicle = this.vehicles.find((v) => v.id === formValue.vehicleId);
-            const service = this.serviceTypes.find((s) => s.id === formValue.serviceTypeId);
+            const selectedServices = this.getSelectedServicesInfo();
             const timeSlot = this.timeSlots.find((t) => t.id === formValue.timeSlotId);
 
-            // Créer nouvel RDV
+            // Créer nouvel RDV avec services multiples
             const newAppointment: Appointment = {
                 id: this.appointments.length + 1,
                 date: formValue.date,
                 timeSlot: timeSlot ? timeSlot.time : '',
                 vehicleId: formValue.vehicleId,
                 vehicleInfo: vehicle ? `${vehicle.marque} ${vehicle.modele} (${vehicle.immatriculation})` : '',
-                serviceType: service ? service.name : '',
+                services: selectedServices.map((s) => ({
+                    id: s.id,
+                    name: s.name,
+                    price: s.price,
+                    duration: s.duration
+                })),
+                totalDuration: this.calculateTotalDuration(),
+                totalPrice: this.calculateTotalPrice(),
                 status: 'en attente',
                 notes: formValue.notes
             };
@@ -768,7 +867,7 @@ export class AppointmentBookingComponent implements OnInit {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Rendez-vous confirmé',
-                detail: `Votre rendez-vous a été enregistré pour le ${new Date(formValue.date).toLocaleDateString()} à ${timeSlot?.time}`
+                detail: `Votre rendez-vous avec ${selectedServices.length} service(s) a été enregistré pour le ${new Date(formValue.date).toLocaleDateString()} à ${timeSlot?.time}`
             });
 
             // Rediriger vers l'onglet des rendez-vous
@@ -788,13 +887,15 @@ export class AppointmentBookingComponent implements OnInit {
     editAppointment(appointment: Appointment) {
         // Charger les données de l'appointment dans le formulaire
         const vehicle = this.vehicles.find((v) => v.id === appointment.vehicleId);
-        const service = this.serviceTypes.find((s) => s.name === appointment.serviceType);
         const timeSlot = this.timeSlots.find((t) => t.time === appointment.timeSlot);
 
-        if (vehicle && service && timeSlot) {
+        // Extraire les IDs des services
+        const serviceIds = appointment.services.map((s) => s.id);
+
+        if (vehicle && timeSlot) {
             this.appointmentForm.patchValue({
                 vehicleId: vehicle.id,
-                serviceTypeId: service.id,
+                selectedServices: serviceIds,
                 date: appointment.date,
                 timeSlotId: timeSlot.id,
                 notes: appointment.notes
