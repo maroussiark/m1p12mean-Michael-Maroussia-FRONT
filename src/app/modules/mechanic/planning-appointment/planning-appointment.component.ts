@@ -14,6 +14,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { CalendarOptions } from '@fullcalendar/core/index.js';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 interface Appointment {
     id: number;
@@ -21,22 +22,27 @@ interface Appointment {
     clientPhone: string;
     vehicleModel: string;
     vehiclePlate: string;
-    serviceType: string;
+    serviceTypes: string[]; // Modifié pour stocker plusieurs services
     appointmentDate: Date;
     duration: number;
     status: string;
     notes: string;
+    mechanicIds: number[]; // Modifié pour stocker plusieurs mécaniciens
+
 }
 
 interface MechanicSlot {
     id: number;
     mechanicName: string;
     available: boolean;
+    specialty: string;
+
 }
 
 @Component({
     selector: 'app-planning-appointment',
-    imports: [CommonModule, ButtonModule, CalendarModule, TableModule, DialogModule, ReactiveFormsModule, ToastModule, InputNumberModule, DropdownModule, FullCalendarModule],
+    imports: [CommonModule, ButtonModule, CalendarModule, TableModule, DialogModule, ReactiveFormsModule,
+        ToastModule, InputNumberModule, DropdownModule, FullCalendarModule,MultiSelectModule],
     templateUrl: './planning-appointment.component.html',
     styleUrls: ['./planning-appointment.component.scss'],
     providers: [MessageService]
@@ -116,12 +122,12 @@ export class PlanningAppointmentComponent implements OnInit {
             clientPhone: ['', Validators.required],
             vehicleModel: ['', Validators.required],
             vehiclePlate: ['', Validators.required],
-            serviceType: ['', Validators.required],
+            serviceTypes: [[], Validators.required], // Modifié pour accepter un tableau
             appointmentDate: [null, Validators.required],
             duration: [60, Validators.required],
             status: ['pending', Validators.required],
             notes: [''],
-            mechanicId: [null, Validators.required]
+            mechanicIds: [[], Validators.required] // Modifié pour accepter un tableau
         });
     }
 
@@ -137,9 +143,11 @@ export class PlanningAppointmentComponent implements OnInit {
     loadMechanics() {
         // Simuler le chargement des mécaniciens depuis une API
         this.mechanicSlots = [
-            { id: 1, mechanicName: 'Jean Dupont', available: true },
-            { id: 2, mechanicName: 'Marie Martin', available: true },
-            { id: 3, mechanicName: 'Pierre Durand', available: false }
+            { id: 1, mechanicName: 'Jean Dupont', available: true, specialty: 'Moteur' },
+            { id: 2, mechanicName: 'Marie Martin', available: true, specialty: 'Électronique' },
+            { id: 3, mechanicName: 'Pierre Durand', available: true, specialty: 'Freins' },
+            { id: 4, mechanicName: 'Sophie Petit', available: true, specialty: 'Climatisation' },
+            { id: 5, mechanicName: 'Michel Dubois', available: false, specialty: 'Carrosserie' }
         ];
     }
 
@@ -152,11 +160,12 @@ export class PlanningAppointmentComponent implements OnInit {
                 clientPhone: '06 12 34 56 78',
                 vehicleModel: 'Peugeot 308',
                 vehiclePlate: 'AB-123-CD',
-                serviceType: 'regular-maintenance',
+                serviceTypes: ['regular-maintenance', 'oil-change'],
                 appointmentDate: new Date(),
                 duration: 60,
                 status: 'confirmed',
-                notes: 'Vidange + filtre à huile'
+                notes: 'Vidange + filtre à huile',
+                mechanicIds: [1, 3]
             },
             {
                 id: 2,
@@ -164,11 +173,13 @@ export class PlanningAppointmentComponent implements OnInit {
                 clientPhone: '06 98 76 54 32',
                 vehicleModel: 'Renault Clio',
                 vehiclePlate: 'EF-456-GH',
-                serviceType: 'repair',
+                serviceTypes: ['brake-repair', 'electronic-diagnostic'],
                 appointmentDate: new Date(new Date().setHours(new Date().getHours() + 3)),
                 duration: 120,
                 status: 'pending',
-                notes: 'Problème de freins'
+                notes: 'Problème de freins',
+                mechanicIds: [2]
+
             }
         ];
     }
@@ -331,4 +342,22 @@ export class PlanningAppointmentComponent implements OnInit {
     toggleView() {
         this.view = this.view === 'calendar' ? 'list' : 'calendar';
     }
+
+    getMechanicNames(mechanicIds: number[]): string {
+        if (!mechanicIds || mechanicIds.length === 0) return 'Aucun';
+
+        return mechanicIds.map(id => {
+          const mechanic = this.mechanicSlots.find(m => m.id === id);
+          return mechanic ? mechanic.mechanicName : `Mécanicien #${id}`;
+        }).join(', ');
+    }
+
+    getServiceLabels(serviceTypes: string[]): string {
+        if (!serviceTypes || serviceTypes.length === 0) return 'Aucun';
+
+        return serviceTypes.map(value => {
+          const service = this.serviceTypes.find(s => s.value === value);
+          return service ? service.label : value;
+        }).join(', ');
+      }
 }
