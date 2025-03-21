@@ -26,3 +26,4 @@
                     ></path>
                 </g>
             </svg>
+            <div *ngFor="let operation of operations.controls; let i = index"
