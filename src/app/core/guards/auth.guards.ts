@@ -22,7 +22,7 @@ export class AuthGuard implements CanActivate {
   ): Observable<boolean> | Promise<boolean> | boolean {
     const currentUser = this.authService.currentUserValue;
     if (!currentUser) {
-        this.router.navigate(['/auth'], { queryParams: { returnUrl: state.url } });
+        this.router.navigate(['/auth']);
         this.messageService.add({
           severity: 'warn',
           summary: 'Veuillez vous connecter',

@@ -14,12 +14,10 @@ import { CommonModule } from '@angular/common';
     standalone: true,
     imports: [RouterModule, CommonModule, TopbarWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule, AppFooter],
     template: `
-        <div class="layout-wrapper">
-            <topbar-widget class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static" />
-            <div class="layout-main-container mt-0" style="margin-top: -70px;">
-                <div class="layout-main">
-                    <router-outlet></router-outlet>
-                </div>
+        <div class="min-h-screen flex flex-col bg-surface-0">
+            <topbar-widget class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static bg-surface-0 dark:bg-surface-900" />
+            <div class="flex-1">
+                <router-outlet></router-outlet>
             </div>
             <app-footer />
         </div>

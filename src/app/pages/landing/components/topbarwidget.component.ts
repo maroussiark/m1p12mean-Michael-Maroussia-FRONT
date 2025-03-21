@@ -29,13 +29,7 @@ interface ButtonConfig {
     selector: 'topbar-widget',
     imports: [RouterModule, StyleClassModule, ButtonModule, RippleModule, CommonModule, ToastModule],
     providers: [MessageService],
-    host: {
-        'class': 'bg-surface-0 dark:bg-surface-900',
-        'style': 'backdrop-filter: blur(4px); border-radius: 8px; margin-top: 20px;'
-    },
     template: `
-     <div class="layout-topbar">
-       <p-toast position="bottom-center"></p-toast>
         <a class="flex items-center" href="#">
             <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">AutoPro</span>
         </a>
@@ -73,7 +67,6 @@ interface ButtonConfig {
                 </ng-template>
             </div>
         </div>
-</div>
     `
 })
 export class TopbarWidget implements OnInit {
@@ -92,8 +85,8 @@ export class TopbarWidget implements OnInit {
             condition: () => true
         },
         {
-            label: 'Dashboard',
-            routerLink: ['/dashboard'],
+            label: 'Rendez-vous',
+            routerLink: ['/client/appointment'],
             condition: () => this.isLoggedIn
         },
         {
