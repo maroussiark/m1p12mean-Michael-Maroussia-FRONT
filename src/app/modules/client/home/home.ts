@@ -1,3 +1,5 @@
+import { TopbarWidget } from './../../../pages/landing/components/topbarwidget.component';
+import { AppFooter } from './../../../layout/component/app.footer';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -38,10 +40,12 @@ interface PromotionCard {
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule, RouterModule, ButtonModule, CardModule, DividerModule, CarouselModule, TagModule, ProgressBarModule, RippleModule],
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, DividerModule, CarouselModule, TagModule, ProgressBarModule, RippleModule, AppFooter, TopbarWidget],
     template: `
+        <topbar-widget class="fixed top-0 left-0 right-0 w-full py-6 px-6 flex items-center justify-between bg-gradient-to-r from-white via-gray-100 to-white shadow-lg z-50 text-gray-800" />
+
         <!-- Hero Section -->
-        <div class="hero-section relative">
+        <div class="hero-section relative mt-10">
             <div class="bg-gradient-to-r from-blue-400 to-blue-200 py-16 md:py-24 px-4">
                 <div class="max-w-7xl mx-auto">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -218,6 +222,8 @@ interface PromotionCard {
                 <button pButton label="Prendre rendez-vous" icon="pi pi-calendar-plus" class="p-button-lg" [routerLink]="['/client/appointment']"></button>
             </div>
         </section>
+
+        <app-footer />
     `,
     styles: [
         `

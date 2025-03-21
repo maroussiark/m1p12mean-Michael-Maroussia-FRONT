@@ -30,7 +30,10 @@ interface ButtonConfig {
     imports: [RouterModule, StyleClassModule, ButtonModule, RippleModule, CommonModule, ToastModule],
     providers: [MessageService],
     template: `
-        <a class="flex items-center" href="#">
+        <a class="flex items-center" href="/">
+            <svg class="w-10 h-10 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13l2-2h14l2 2M3 13v5a1 1 0 001 1h1a1 1 0 001-1v-2a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 001 1h1a1 1 0 001-1v-5M5 13V7a1 1 0 011-1h12a1 1 0 011 1v6" />
+            </svg>
             <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">AutoPro</span>
         </a>
 
@@ -38,7 +41,7 @@ interface ButtonConfig {
             <i class="pi pi-bars !text-2xl"></i>
         </a>
 
-        <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
+        <div class="items-center  grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
             <ul class="list-none p-0 m-0 flex lg:items-center select-none flex-col lg:flex-row cursor-pointer gap-8">
                 <li *ngFor="let item of filteredMenuItems">
                     <a (click)="navigate(item)" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
@@ -79,12 +82,6 @@ export class TopbarWidget implements OnInit {
 
     menuItems: MenuItem[] = [
         {
-            label: 'Accueil',
-            routerLink: ['/'],
-            fragment: '',
-            condition: () => true
-        },
-        {
             label: 'Rendez-vous',
             routerLink: ['/client/appointment'],
             condition: () => this.isLoggedIn
@@ -119,7 +116,7 @@ export class TopbarWidget implements OnInit {
         this.messageService.add({
             severity: 'warn',
             summary: 'Déconnexion réussie',
-            detail:'A bientot'
+            detail: 'A bientot'
         });
     }
 

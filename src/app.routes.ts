@@ -26,8 +26,15 @@ export const appRoutes: Routes = [
         children: [{ path: '', loadChildren: () => import('./app/modules/client/client.routes') }]
         // data: { role: ['admin'] }
     },
-    { path: '', component: Landing },
-    // { path: '', component: HomeComponent },
+    {
+        path: 'mechanic',
+        component: AppLayout,
+        canActivate: [AuthGuard],
+        children: [{ path: '', loadChildren: () => import('./app/modules/mechanic/mechanic.routes') }],
+        data: { role: ['admin'] }
+    },
+    { path: 'landing', component: Landing },
+    { path: '', component: HomeComponent },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/modules/authentication/authentication.module').then((m) => m.AuthenticationModule) },
     { path: '**', redirectTo: '/notfound' }

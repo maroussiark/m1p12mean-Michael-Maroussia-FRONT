@@ -15,8 +15,8 @@ import { CommonModule } from '@angular/common';
     imports: [RouterModule, CommonModule, TopbarWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule, AppFooter],
     template: `
         <div class="min-h-screen flex flex-col bg-surface-0">
-            <topbar-widget class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static bg-surface-0 dark:bg-surface-900" />
-            <div class="flex-1">
+        <topbar-widget class="fixed top-0 left-0 right-0 w-full py-6 px-6 flex items-center justify-between bg-gradient-to-r from-white via-gray-100 to-white shadow-lg z-50 text-gray-800" />
+        <div class="flex-1 mt-20">
                 <router-outlet></router-outlet>
             </div>
             <app-footer />
