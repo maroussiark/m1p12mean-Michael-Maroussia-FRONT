@@ -3,10 +3,15 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse
 import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService,
+        private router: Router,
+        private messageService: MessageService,
+  ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const currentUser = this.authService.currentUserValue;
@@ -17,10 +22,13 @@ export class TokenInterceptor implements HttpInterceptor {
     }
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          // Si l'utilisateur n'est pas autorisé, on peut le déconnecter ou le rediriger
-          this.authService.logout();
-          // Optionnel : rediriger vers la page de login
+        if (error.status === 401 || error.status === 403) {
+            this.router.navigate(['/auth/not-authorized']);
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Accès refusé',
+              detail: 'Vous n\'avez pas les droits nécessaires pour accéder à cette page'
+            });
         }
         return throwError(error);
       })

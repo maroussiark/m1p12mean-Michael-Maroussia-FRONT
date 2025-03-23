@@ -3,7 +3,8 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { MessageService } from 'primeng/api';
+
 
 @Component({
   selector: 'app-auth',
@@ -20,7 +21,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private toastr: ToastrService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -48,12 +49,20 @@ export class AuthComponent implements OnInit, OnDestroy {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe(
         user => {
-          this.toastr.success('Connexion réussie', 'Bienvenue');
-          this.router.navigate(['/client']);
+          this.router.navigate(['/']);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Connexion réussie',
+            detail: 'Bienvenue'
+        });
         },
         error => {
           console.error('Erreur de connexion', error);
-          this.toastr.error('Erreur de connexion', 'Veuillez réessayer');
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur de connexion',
+            detail: 'Veuillez réessayez'
+        });
         }
       );
     }

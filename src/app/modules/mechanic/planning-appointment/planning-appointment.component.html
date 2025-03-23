@@ -1,0 +1,328 @@
+<div class="container mx-auto p-4">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">Gestion des Rendez-vous</h1>
+
+      <div class="flex flex-col sm:flex-row gap-2">
+        <p-button
+          icon="pi pi-plus"
+          label="Nouveau"
+          (onClick)="openNew()"
+          styleClass="p-button-success"></p-button>
+
+        <p-button
+          [icon]="view === 'calendar' ? 'pi pi-list' : 'pi pi-calendar'"
+          [label]="view === 'calendar' ? 'Vue Liste' : 'Vue Calendrier'"
+          (onClick)="toggleView()"
+          styleClass="p-button-secondary"></p-button>
+      </div>
+    </div>
+
+    <!-- Calendrier -->
+    <div *ngIf="view === 'calendar'" class="bg-white rounded-lg shadow-md p-4">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+
+    <!-- Liste des rendez-vous -->
+    <div *ngIf="view === 'list'" class="bg-white rounded-lg shadow-md">
+      <p-table
+        [value]="appointments"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,25]"
+        [globalFilterFields]="['clientName','vehicleModel','vehiclePlate','status']"
+        responsiveLayout="stack"
+        styleClass="p-datatable-sm">
+
+        <ng-template pTemplate="caption">
+          <div class="flex justify-between items-center p-2">
+            <h5 class="m-0">Liste des Rendez-vous</h5>
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                placeholder="Rechercher..."
+                class="p-inputtext-sm" />
+            </span>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="appointmentDate">Date <p-sortIcon field="appointmentDate"></p-sortIcon></th>
+            <th pSortableColumn="clientName">Client <p-sortIcon field="clientName"></p-sortIcon></th>
+            <th pSortableColumn="vehicleModel">Véhicule <p-sortIcon field="vehicleModel"></p-sortIcon></th>
+            <th>Services</th>
+            <th>Mécaniciens</th>
+            <th pSortableColumn="status">Statut <p-sortIcon field="status"></p-sortIcon></th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-appointment>
+          <tr>
+            <td>
+
+              {{appointment.appointmentDate | date:'dd/MM/yyyy HH:mm'}}
+              <div class="text-xs text-gray-500">Durée: {{appointment.duration}} min</div>
+            </td>
+            <td>
+
+              <div class="font-medium">{{appointment.clientName}}</div>
+              <div class="text-sm text-gray-500">{{appointment.clientPhone}}</div>
+            </td>
+            <td>
+
+              <div>{{appointment.vehicleModel}}</div>
+              <div class="text-sm">{{appointment.vehiclePlate}}</div>
+            </td>
+            <td>
+
+              <div class="flex flex-wrap gap-1">
+                <span *ngFor="let serviceType of appointment.serviceTypes"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {{getServiceLabels([serviceType])}}
+                </span>
+              </div>
+            </td>
+            <td>
+
+              <div class="flex flex-wrap gap-1">
+                <span *ngFor="let mechId of appointment.mechanicIds"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <i class="pi pi-user mr-1"></i>
+                  {{getMechanicNames([mechId])}}
+                </span>
+              </div>
+            </td>
+            <td>
+
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  [ngClass]="getAppointmentStatusClass(appointment.status)">
+                {{appointment.status}}
+              </span>
+            </td>
+            <td>
+              <div class="flex">
+                <button pButton pRipple icon="pi pi-pencil"
+                  class="p-button-rounded p-button-success mr-2 p-button-sm"
+                  (click)="editAppointment(appointment)"></button>
+                <button pButton pRipple icon="pi pi-trash"
+                  class="p-button-rounded p-button-danger p-button-sm"
+                  (click)="deleteAppointment(appointment)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7">Aucun rendez-vous trouvé.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Dialog pour ajouter/modifier un rendez-vous -->
+    <p-dialog
+      [(visible)]="appointmentDialog"
+      [style]="{width: '90%', maxWidth: '700px'}"
+      [header]="selectedAppointment ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous'"
+      [modal]="true"
+      styleClass="p-fluid">
+
+      <form [formGroup]="appointmentForm" class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field col-span-1">
+            <label for="clientName" class="block text-sm font-medium text-gray-700 mb-1">Nom du client</label>
+            <span class="p-input-icon-right w-full">
+              <i *ngIf="submitted && appointmentForm.controls['clientName'].invalid" class="pi pi-exclamation-circle text-red-500"></i>
+              <input
+                type="text"
+                pInputText
+                id="clientName"
+                formControlName="clientName"
+                class="w-full p-inputtext-sm border-2 rounded-md"
+
+                [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['clientName'].invalid}"/>
+            </span>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['clientName'].invalid">
+              Le nom du client est requis.
+            </small>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="clientPhone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+            <span class="p-input-icon-right w-full">
+              <i *ngIf="submitted && appointmentForm.controls['clientPhone'].invalid" class="pi pi-exclamation-circle text-red-500"></i>
+              <input
+                type="text"
+                pInputText
+                id="clientPhone"
+                formControlName="clientPhone"
+                class="w-full p-inputtext-sm border-2 rounded-md"
+                [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['clientPhone'].invalid}"/>
+            </span>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['clientPhone'].invalid">
+              Le téléphone est requis.
+            </small>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="vehicleModel" class="block text-sm font-medium text-gray-700 mb-1">Modèle du véhicule</label>
+            <span class="p-input-icon-right w-full">
+              <i *ngIf="submitted && appointmentForm.controls['vehicleModel'].invalid" class="pi pi-exclamation-circle text-red-500"></i>
+              <input
+                type="text"
+                pInputText
+                id="vehicleModel"
+                formControlName="vehicleModel"
+                class="w-full p-inputtext-sm border-2 rounded-md"
+                [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['vehicleModel'].invalid}"/>
+            </span>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['vehicleModel'].invalid">
+              Le modèle du véhicule est requis.
+            </small>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="vehiclePlate" class="block text-sm font-medium text-gray-700 mb-1">Immatriculation</label>
+            <span class="p-input-icon-right w-full">
+              <i *ngIf="submitted && appointmentForm.controls['vehiclePlate'].invalid" class="pi pi-exclamation-circle text-red-500"></i>
+              <input
+                type="text"
+                pInputText
+                id="vehiclePlate"
+                formControlName="vehiclePlate"
+                class="w-full p-inputtext-sm border-2 rounded-md"
+                [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['vehiclePlate'].invalid}"/>
+            </span>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['vehiclePlate'].invalid">
+              L'immatriculation est requise.
+            </small>
+          </div>
+
+          <div class="field col-span-full">
+            <label for="serviceTypes" class="block text-sm font-medium text-gray-700 mb-1">Services</label>
+            <p-multiSelect
+              inputId="serviceTypes"
+              formControlName="serviceTypes"
+              [options]="serviceTypes"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Sélectionner les services"
+              styleClass="w-full p-inputtext-sm"
+              [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['serviceTypes'].invalid}"
+              display="chip">
+            </p-multiSelect>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['serviceTypes'].invalid">
+              Au moins un service est requis.
+            </small>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="appointmentDate" class="block text-sm font-medium text-gray-700 mb-1">Date et heure</label>
+            <p-calendar
+              inputId="appointmentDate"
+              formControlName="appointmentDate"
+              [showTime]="true"
+              [hourFormat]="'24'"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              styleClass="w-full p-inputtext-sm"
+              [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['appointmentDate'].invalid}">
+            </p-calendar>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['appointmentDate'].invalid">
+              La date et l'heure sont requises.
+            </small>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">Durée (minutes)</label>
+            <p-inputNumber
+              inputId="duration"
+              formControlName="duration"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              [min]="30"
+              [max]="480"
+              [step]="30"
+              decrementButtonClass="p-button-secondary"
+              incrementButtonClass="p-button-secondary"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              styleClass="w-full p-inputtext-sm">
+            </p-inputNumber>
+          </div>
+
+          <div class="field col-span-full">
+            <label for="mechanicIds" class="block text-sm font-medium text-gray-700 mb-1">Mécaniciens</label>
+            <p-multiSelect
+              inputId="mechanicIds"
+              formControlName="mechanicIds"
+              [options]="mechanicSlots"
+              optionLabel="mechanicName"
+              optionValue="id"
+              placeholder="Sélectionner les mécaniciens"
+              styleClass="w-full p-inputtext-sm"
+              [ngClass]="{'ng-invalid ng-dirty': submitted && appointmentForm.controls['mechanicIds'].invalid}"
+              display="chip">
+              <ng-template pTemplate="item" let-mechanic>
+                <div class="flex items-center">
+                  <i class="pi pi-user mr-2"></i>
+                  <span>{{mechanic.mechanicName}}</span>
+                  <span class="ml-1 text-gray-500">({{mechanic.specialty}})</span>
+                  <span *ngIf="!mechanic.available" class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-500">Indisponible</span>
+                </div>
+              </ng-template>
+            </p-multiSelect>
+            <small class="text-red-500 text-xs" *ngIf="submitted && appointmentForm.controls['mechanicIds'].invalid">
+              Au moins un mécanicien est requis.
+            </small>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+            <p-dropdown
+              inputId="status"
+              formControlName="status"
+              [options]="statuses"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Sélectionner un statut"
+              styleClass="w-full p-inputtext-sm">
+            </p-dropdown>
+          </div>
+
+          <div class="field col-span-full">
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea
+              pInputTextarea
+              id="notes"
+              formControlName="notes"
+              rows="3"
+              class="w-full resize-none p-inputtext-sm border-2 rounded-md">
+            </textarea>
+          </div>
+        </div>
+      </form>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+          <p-button
+            label="Annuler"
+            icon="pi pi-times"
+            styleClass="p-button-text"
+            (onClick)="hideDialog()"></p-button>
+          <p-button
+            label="Enregistrer"
+            icon="pi pi-check"
+            styleClass="p-button-primary"
+            (onClick)="saveAppointment()"></p-button>
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Toast pour les messages -->
+    <p-toast></p-toast>
+  </div>
