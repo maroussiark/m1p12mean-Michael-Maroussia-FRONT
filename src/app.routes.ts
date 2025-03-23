@@ -24,13 +24,19 @@ export const appRoutes: Routes = [
         component: ClientLayout,
         canActivate: [AuthGuard],
         children: [{ path: '', loadChildren: () => import('./app/modules/client/client.routes') }]
-        // data: { role: ['admin'] }
     },
     {
         path: 'mechanic',
         component: AppLayout,
         canActivate: [AuthGuard],
         children: [{ path: '', loadChildren: () => import('./app/modules/mechanic/mechanic.routes') }],
+        data: { role: ['admin'] }
+    },
+    {
+        path: 'admin',
+        component: AppLayout,
+        canActivate: [AuthGuard],
+        children: [{ path: '', loadChildren: () => import('./app/modules/admin/admin.routes') }],
         data: { role: ['admin'] }
     },
     { path: 'landing', component: Landing },
