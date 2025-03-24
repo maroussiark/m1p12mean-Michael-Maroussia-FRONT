@@ -19,7 +19,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
 import { SliderModule } from 'primeng/slider';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableRowExpandEvent } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
@@ -131,7 +131,7 @@ export class UserManagementComponent implements OnInit {
     visiteRange: number[] = [0, 5];
     valeurRange: number[] = [0, 1000];
 
-    expandedRows: { [key: string]: boolean } = {};
+    expandedRows = {};
 
     constructor(
         private fb: FormBuilder,
@@ -365,12 +365,11 @@ export class UserManagementComponent implements OnInit {
         this.activeTabIndex = event.index;
     }
 
-    onRowExpand(event: any) {
-        this.expandedRows[event.data.id] = true;
-      }
+    onRowExpand(event: TableRowExpandEvent) {
+        this.messageService.add({ severity: 'info', summary: 'Product Expanded', detail: event.data.name, life: 3000 });
+    }
 
-      onRowCollapse(event: any) {
-        delete this.expandedRows[event.data.id];
-      }
-
+    onRowCollapse(event: TableRowExpandEvent) {
+        this.messageService.add({ severity: 'success', summary: 'Product Collapsed', detail: event.data.name, life: 3000 });
+    }
 }

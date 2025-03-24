@@ -137,17 +137,17 @@
 
                 <p-table
                     [value]="clients"
-                    [expandedRowKeys]="expandedRows"
                     dataKey="id"
                     [rows]="10"
                     [paginator]="true"
                     responsiveLayout="scroll"
                     [rowHover]="true"
                     styleClass="p-datatable-sm p-datatable-gridlines"
+                    [expandedRowKeys]="expandedRows"
                     (onRowExpand)="onRowExpand($event)"
                     (onRowCollapse)="onRowCollapse($event)"
                     >
-                    <ng-template pTemplate="header">
+                    <ng-template #header pTemplate="header">
                         <tr>
                             <th style="width: 3%"></th>
                             <th pSortableColumn="nom" style="width: 15%">Nom <p-sortIcon field="nom"></p-sortIcon></th>
@@ -164,12 +164,17 @@
                             <th style="width: 15%">Actions</th>
                         </tr>
                     </ng-template>
-                    <ng-template pTemplate="body" let-client let-expanded="expanded">
+                    <ng-template #body let-client let-expanded="expanded">
                         <tr>
                             <td>
-                                <button type="button" pButton pRipple [pRowToggler]="client"
-                                    class="p-button-text p-button-rounded p-button-plain p-button-sm"
-                                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                                <p-button type="button"
+                                    pRipple
+                                    [pRowToggler]="client"
+                                    [rounded]="true"
+                                    [text]="true"
+                                    [plain]="true"
+                                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                                </p-button>
                             </td>
                             <td>{{ client.prenom }} {{ client.nom }}</td>
                             <td>{{ client.email }}</td>
@@ -200,7 +205,7 @@
                             </td>
                         </tr>
                     </ng-template>
-                    <ng-template pTemplate="rowexpansion" let-client>
+                    <ng-template #expandedrow  let-client>
                         <tr>
                             <td colspan="8">
                                 <div class="p-3 bg-gray-50 rounded">

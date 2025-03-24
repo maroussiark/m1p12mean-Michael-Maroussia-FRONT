@@ -12,8 +12,8 @@ import { ToastModule } from 'primeng/toast';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { CalendarOptions } from '@fullcalendar/core/index.js';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import { CalendarOptions } from '@fullcalendar/core/index.js';
 import { MultiSelectModule } from 'primeng/multiselect';
 
 interface Appointment {
