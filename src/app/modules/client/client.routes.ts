@@ -5,6 +5,7 @@ import { ClientProfileComponent } from './profile/client.profile';
 import { HomeComponent } from './home/home';
 import { AuthComponent } from './auth.component';
 import { InvoiceHistoryComponent } from './appointment/invoice-history';
+import { NotificationsComponent } from '../notifications/notifications.component';
 
 export default [
     { path: 'profile', component: ClientProfileComponent },
@@ -13,5 +14,6 @@ export default [
     { path: 'invoice', component: InvoiceHistoryComponent },
     { path: '', component: HomeComponent },
     { path: 'auth', component: AuthComponent },
+    { path: 'not', component: NotificationsComponent },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;
