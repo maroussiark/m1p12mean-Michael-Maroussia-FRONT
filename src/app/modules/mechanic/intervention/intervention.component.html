@@ -1,22 +1,20 @@
-<!-- travaux-realises.component.html -->
 <div class="p-6 bg-gray-50 min-h-screen">
     <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
       <!-- Entête avec le titre et statut -->
       <div class="text-white py-4 px-6 flex justify-between items-center">
         <h1 class="text-2xl font-bold">Saisie des travaux réalisés</h1>
         <span class="px-3 py-1 bg-blue-800 rounded-full text-sm font-medium" *ngIf="rendezVousSelectionne">
-          RDV #{{rendezVousSelectionne.id}}
+          RDV #{{ rendezVousSelectionne.id }}
         </span>
       </div>
 
       <!-- Sélection du rendez-vous -->
       <div class="border-b border-gray-200 p-6" *ngIf="!rendezVousSelectionne">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Sélectionner un rendez-vous</h2>
-
         <div class="flex flex-col md:flex-row gap-4 mb-4">
           <div class="flex-grow">
             <p-calendar [(ngModel)]="dateFiltre" [showIcon]="true" placeholder="Filtrer par date"
-                       styleClass="w-full" (onSelect)="filtrerRendezVous()"></p-calendar>
+                        styleClass="w-full" (onSelect)="filtrerRendezVous()"></p-calendar>
           </div>
           <div class="flex-grow">
             <span class="p-input-icon-left w-full">
@@ -26,9 +24,8 @@
             </span>
           </div>
         </div>
-
         <p-table [value]="rendezVousFiltres" [paginator]="true" [rows]="5" styleClass="p-datatable-sm"
-                [rowHover]="true" dataKey="id" responsiveLayout="scroll">
+                 [rowHover]="true" dataKey="id" responsiveLayout="scroll">
           <ng-template pTemplate="header">
             <tr>
               <th>ID</th>
@@ -42,40 +39,40 @@
           </ng-template>
           <ng-template pTemplate="body" let-rdv>
             <tr>
-              <td>{{rdv.id}}</td>
+              <td>{{ rdv.id }}</td>
               <td>
-                <div class="font-medium">{{rdv.clientName}}</div>
-                <div class="text-sm text-gray-500">{{rdv.clientPhone}}</div>
+                <div class="font-medium">{{ rdv.clientName }}</div>
+                <div class="text-sm text-gray-500">{{ rdv.clientPhone }}</div>
               </td>
               <td>
-                <div class="font-medium">{{rdv.vehicleModel}}</div>
-                <div class="text-sm text-gray-500">{{rdv.vehiclePlate}}</div>
+                <div class="font-medium">{{ rdv.vehicleModel }}</div>
+                <div class="text-sm text-gray-500">{{ rdv.vehiclePlate }}</div>
               </td>
               <td>
-                <div class="font-medium">{{rdv.appointmentDate | date: 'dd/MM/yyyy'}}</div>
-                <div class="text-sm text-gray-500">{{rdv.duration}} min</div>
+                <div class="font-medium">{{ rdv.appointmentDate | date:'dd/MM/yyyy' }}</div>
+                <div class="text-sm text-gray-500">{{ rdv.duration }} min</div>
               </td>
               <td>
                 <div *ngFor="let service of rdv.serviceTypes" class="text-sm">
                   <span class="inline-block px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs mb-1">
-                    {{service}}
+                    {{ service }}
                   </span>
                 </div>
               </td>
               <td>
                 <span class="inline-block px-2 py-1 rounded-full"
-                     [ngClass]="{
-                       'bg-yellow-100 text-yellow-800': rdv.status === 'planifié',
-                       'bg-green-100 text-green-800': rdv.status === 'terminé',
-                       'bg-blue-100 text-blue-800': rdv.status === 'en cours',
-                       'bg-red-100 text-red-800': rdv.status === 'annulé'
-                     }">
-                  {{rdv.status}}
+                      [ngClass]="{
+                        'bg-yellow-100 text-yellow-800': rdv.status === 'planifié',
+                        'bg-green-100 text-green-800': rdv.status === 'terminé',
+                        'bg-blue-100 text-blue-800': rdv.status === 'en cours',
+                        'bg-red-100 text-red-800': rdv.status === 'annulé'
+                      }">
+                  {{ rdv.status }}
                 </span>
               </td>
               <td>
                 <p-button icon="pi pi-check" styleClass="p-button-sm p-button-rounded"
-                         (click)="selectionnerRendezVous(rdv)" label="Sélectionner"></p-button>
+                          (click)="selectionnerRendezVous(rdv)" label="Sélectionner"></p-button>
               </td>
             </tr>
           </ng-template>
@@ -98,79 +95,82 @@
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold text-gray-800">Détails du rendez-vous</h2>
           <p-button icon="pi pi-times" styleClass="p-button-text p-button-rounded"
-                   (click)="annulerSelection()" label="Changer"></p-button>
+                    (click)="annulerSelection()" label="Changer"></p-button>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="bg-white p-4 rounded-lg shadow-sm">
             <div class="text-sm text-gray-500 mb-1">Client</div>
-            <div class="font-medium">{{rendezVousSelectionne.clientName}}</div>
-            <div class="text-sm mt-2">{{rendezVousSelectionne.clientPhone}}</div>
+            <div class="font-medium">{{ rendezVousSelectionne.clientName }}</div>
+            <div class="text-sm mt-2">{{ rendezVousSelectionne.clientPhone }}</div>
           </div>
-
           <div class="bg-white p-4 rounded-lg shadow-sm">
             <div class="text-sm text-gray-500 mb-1">Véhicule</div>
-            <div class="font-medium">{{rendezVousSelectionne.vehicleModel}}</div>
-            <div class="text-sm mt-2">{{rendezVousSelectionne.vehiclePlate}}</div>
+            <div class="font-medium">{{ rendezVousSelectionne.vehicleModel }}</div>
+            <div class="text-sm mt-2">{{ rendezVousSelectionne.vehiclePlate }}</div>
           </div>
-
           <div class="bg-white p-4 rounded-lg shadow-sm">
             <div class="text-sm text-gray-500 mb-1">Services prévus</div>
             <div *ngFor="let service of rendezVousSelectionne.serviceTypes" class="mb-1">
               <span class="inline-block px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
-                {{service}}
+                {{ service }}
               </span>
             </div>
-            <div class="text-sm mt-2">{{rendezVousSelectionne.appointmentDate | date: 'dd/MM/yyyy'}} - {{rendezVousSelectionne.duration}} min</div>
+            <div class="text-sm mt-2">{{ rendezVousSelectionne.appointmentDate | date:'dd/MM/yyyy' }} - {{ rendezVousSelectionne.duration }} min</div>
           </div>
         </div>
-
         <div *ngIf="rendezVousSelectionne.notes" class="mt-4 bg-white p-4 rounded-lg shadow-sm">
           <div class="text-sm text-gray-500 mb-1">Notes</div>
-          <div class="text-sm">{{rendezVousSelectionne.notes}}</div>
+          <div class="text-sm">{{ rendezVousSelectionne.notes }}</div>
         </div>
       </div>
 
-      <!-- Formulaire de saisie des travaux -->
+      <!-- Formulaire de saisie des travaux réalisés -->
       <div class="p-6" *ngIf="rendezVousSelectionne">
         <form [formGroup]="travauxForm" (ngSubmit)="validerIntervention()">
-          <!-- Opérations -->
+          <!-- Pièces utilisées -->
           <div class="mb-6">
             <div class="flex items-center justify-between mb-3">
-              <h2 class="text-xl font-semibold text-gray-700">Opérations effectuées</h2>
-              <p-button icon="pi pi-plus" label="Ajouter" (click)="ajouterOperation()"
-                       styleClass="p-button-sm"></p-button>
+              <h2 class="text-xl font-semibold text-gray-700">Pièces utilisées</h2>
+              <p-button icon="pi pi-plus" label="Ajouter" (click)="ajouterPiece()"
+                        styleClass="p-button-sm"></p-button>
             </div>
-
-            <div formArrayName="operations" class="space-y-4">
-              <div *ngFor="let operation of operations.controls; let i = index"
+            <div formArrayName="pieces" class="space-y-4">
+              <div *ngFor="let piece of pieces.controls; let i = index"
                    [formGroupName]="i" class="p-4 border border-gray-200 rounded-lg bg-white">
-                <div class="flex justify-between items-start">
-                  <div class="flex-grow">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div class="col-span-2">
-                        <span class="p-float-label">
-                          <textarea pInputTextarea formControlName="description" class="w-full"></textarea>
-                          <label>Description de l'opération*</label>
-                        </span>
-                      </div>
-                      <div>
-                        <span class="p-float-label">
-                          <input type="text" pInputText formControlName="pieces" class="w-full" />
-                          <label>Pièces remplacées</label>
-                        </span>
-                      </div>
-                      <div>
-                        <span class="p-float-label">
-                          <p-inputNumber formControlName="duree" suffix=" min" [showButtons]="true"
-                                        [min]="0" class="w-full"></p-inputNumber>
-                          <label>Durée de l'opération</label>
-                        </span>
-                      </div>
-                    </div>
+                <div class="flex justify-between items-center">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <span class="p-float-label">
+                        <label>Nom de la pièce*</label>
+                        <p-select
+                      [options]="parts"
+                      formControlName="part"
+                      optionLabel="name"
+                      optionValue="_id"
+                      [filter]="true"
+                      filterBy="name"
+                      [showClear]="true"
+                      placeholder="Sélectionner une pièce"
+                      class="w-full md:w-56"
+                    >
+                      <ng-template #selectedItem let-selectedOption>
+                        <div class="flex items-center gap-2">
+                          <div>{{ selectedOption.name }}</div>
+                        </div>
+                      </ng-template>
+                      <ng-template let-part #item>
+                        <div class="flex items-center gap-2">
+                          <div>{{ part.name }}</div>
+                        </div>
+                      </ng-template>
+                    </p-select>
+                    </span>
+                    <span class="p-float-label">
+                        <label>Quantité*</label>
+                      <p-inputNumber formControlName="quantity" [min]="1" class="w-full"></p-inputNumber>
+                    </span>
                   </div>
                   <button type="button" pButton icon="pi pi-trash" class="p-button-danger p-button-outlined ml-4"
-                         (click)="supprimerOperation(i)"></button>
+                          (click)="supprimerPiece(i)"></button>
                 </div>
               </div>
             </div>
@@ -191,22 +191,21 @@
           <div class="mb-6 bg-white p-5 rounded-lg border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-700 mb-3">Difficultés rencontrées</h2>
             <p-multiSelect formControlName="difficultes" [options]="difficulties" optionLabel="nom"
-                          [showHeader]="false" class="w-full mb-3" placeholder="Sélectionnez les difficultés rencontrées">
+                           [showHeader]="false" class="w-full mb-3" placeholder="Sélectionnez les difficultés rencontrées">
               <ng-template let-difficulte pTemplate="item">
                 <div class="flex flex-col">
-                  <span>{{difficulte.nom}}</span>
-                  <small class="text-gray-500">{{difficulte.description}}</small>
+                  <span>{{ difficulte.nom }}</span>
+                  <small class="text-gray-500">{{ difficulte.description }}</small>
                 </div>
               </ng-template>
             </p-multiSelect>
-
             <span class="p-float-label mt-4">
               <textarea pInputTextarea formControlName="difficulteAutre" rows="2" class="w-full"></textarea>
               <label>Autres difficultés</label>
             </span>
           </div>
 
-          <!-- Recommandations -->
+          <!-- Recommandations pour le client (non obligatoire) -->
           <div class="mb-6 bg-white p-5 rounded-lg border border-gray-200">
             <h2 class="text-xl font-semibold text-gray-700 mb-3">Recommandations pour le client</h2>
             <p-editor formControlName="recommandations" [style]="{'height':'200px'}" styleClass="mb-2">
@@ -220,14 +219,6 @@
                 </span>
               </ng-template>
             </p-editor>
-            <small *ngIf="travauxForm.get('recommandations')?.invalid && travauxForm.get('recommandations')?.touched"
-                   class="text-red-500">Recommandations requises</small>
-          </div>
-
-          <!-- Observations supplémentaires -->
-          <div class="mb-6 bg-white p-5 rounded-lg border border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-700 mb-3">Observations supplémentaires</h2>
-            <textarea pInputTextarea formControlName="observations" rows="3" class="w-full"></textarea>
           </div>
 
           <!-- Actions -->
