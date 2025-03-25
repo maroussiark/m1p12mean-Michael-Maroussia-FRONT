@@ -17,9 +17,13 @@ import { SelectModule } from 'primeng/select';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TabsModule } from 'primeng/tabs';
 import { ToastModule } from 'primeng/toast';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputNumberModule } from 'primeng/inputnumber';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
+import { ChipModule } from 'primeng/chip';
 
 interface Mecanicien {
     id: number;
@@ -29,17 +33,18 @@ interface Mecanicien {
     disponible: boolean;
 }
 
-interface Intervention {
+interface Appointment {
     id: number;
-    titre: string;
-    description: string;
-    dateDebut: Date;
-    dateFin: Date;
-    mecanicienId: number | null;
-    client: string;
-    vehicule: string;
-    statut: 'programmé' | 'en cours' | 'terminé' | 'annulé';
-    priorite: 'basse' | 'normale' | 'haute' | 'urgente';
+    clientName: string;
+    clientPhone: string;
+    vehicleModel: string;
+    vehiclePlate: string;
+    serviceTypes: string[];
+    appointmentDate: Date;
+    duration: number; // en minutes
+    status: string;
+    notes: string;
+    mechanicIds: number[];
 }
 
 interface PlageSpeciale {
@@ -65,18 +70,20 @@ interface Absence {
     templateUrl: './planning-global.component.html',
     styleUrls: ['./planning-global.component.scss'],
     providers: [MessageService],
-    imports: [CommonModule, CalendarModule, FullCalendarModule, InputTextModule, DropdownModule, ButtonModule, DialogModule, TabsModule, AccordionModule, CheckboxModule, SelectButtonModule, ColorPickerModule, ToastModule, CardModule, FormsModule,SelectModule]
+    imports: [CommonModule, CalendarModule, FullCalendarModule, InputTextModule, DropdownModule, ButtonModule,
+        DialogModule, TabsModule, AccordionModule, CheckboxModule, SelectButtonModule, ColorPickerModule,
+        ToastModule, CardModule, FormsModule, SelectModule, ChipModule, MultiSelectModule, InputNumberModule]
 })
 export class PlanningGlobalComponent implements OnInit {
     mecaniciens: Mecanicien[] = [];
-    interventions: Intervention[] = [];
+    appointments: Appointment[] = [];
     plagesSpeciales: PlageSpeciale[] = [];
     absences: Absence[] = [];
 
     events: any[] = [];
     options: any;
 
-    affichage: 'jour' | 'semaine' | 'mois' = 'semaine';
+    affichage: 'jour' | 'semaine' | 'mois' | 'liste' = 'semaine';
     dateActuelle: Date = new Date();
 
     selectedEvent: any = null;
@@ -86,12 +93,31 @@ export class PlanningGlobalComponent implements OnInit {
     absenceDialogVisible: boolean = false;
     plageSpecialeDialogVisible: boolean = false;
 
-    nouveauTypeEvenement: 'intervention' | 'absence' | 'plageSpeciale' = 'intervention';
+    nouveauTypeEvenement: 'appointment' | 'absence' | 'plageSpeciale' = 'appointment';
 
-    nouvelleIntervention: Intervention = this.initialiserNouvelleIntervention();
+    nouvelAppointment: Appointment = this.initialiserNouvelAppointment();
     nouvelleAbsence: Absence = this.initialiserNouvelleAbsence();
     nouvellePlageSpeciale: PlageSpeciale = this.initialiserNouvellePlageSpeciale();
 
+    statutOptions = [
+        { label: 'Programmé', value: 'programmé' },
+        { label: 'Confirmé', value: 'confirmé' },
+        { label: 'En cours', value: 'en cours' },
+        { label: 'Terminé', value: 'terminé' },
+        { label: 'Annulé', value: 'annulé' }
+    ];
+
+    typeServicesOptions = [
+        { label: 'Vidange', value: 'vidange' },
+        { label: 'Révision', value: 'revision' },
+        { label: 'Freins', value: 'freins' },
+        { label: 'Diagnostique', value: 'diagnostique' },
+        { label: 'Électronique', value: 'electronique' },
+        { label: 'Carrosserie', value: 'carrosserie' },
+        { label: 'Pneus', value: 'pneus' },
+        { label: 'Climatisation', value: 'climatisation' },
+        { label: 'Autre', value: 'autre' }
+    ];
 
     constructor(private messageService: MessageService) {}
 
@@ -100,18 +126,20 @@ export class PlanningGlobalComponent implements OnInit {
         this.initialiserCalendrier();
     }
 
-    initialiserNouvelleIntervention(): Intervention {
+    initialiserNouvelAppointment(): Appointment {
+        const dateDebut = new Date();
         return {
             id: 0,
-            titre: '',
-            description: '',
-            dateDebut: new Date(),
-            dateFin: new Date(new Date().setHours(new Date().getHours() + 2)),
-            mecanicienId: null,
-            client: '',
-            vehicule: '',
-            statut: 'programmé',
-            priorite: 'normale'
+            clientName: '',
+            clientPhone: '',
+            vehicleModel: '',
+            vehiclePlate: '',
+            serviceTypes: [],
+            appointmentDate: dateDebut,
+            duration: 60,
+            status: 'programmé',
+            notes: '',
+            mechanicIds: []
         };
     }
 
@@ -146,30 +174,32 @@ export class PlanningGlobalComponent implements OnInit {
             { id: 4, nom: 'Leroy', prenom: 'Marie', specialite: 'Diagnostic', disponible: true }
         ];
 
-        this.interventions = [
+        this.appointments = [
             {
                 id: 1,
-                titre: 'Vidange',
-                description: 'Vidange complète et changement des filtres',
-                dateDebut: new Date(new Date().setHours(9, 0, 0, 0)),
-                dateFin: new Date(new Date().setHours(11, 0, 0, 0)),
-                mecanicienId: 1,
-                client: 'Durand Robert',
-                vehicule: 'Peugeot 308',
-                statut: 'programmé',
-                priorite: 'normale'
+                clientName: 'Durand Robert',
+                clientPhone: '06 12 34 56 78',
+                vehicleModel: 'Peugeot 308',
+                vehiclePlate: 'AB-123-CD',
+                serviceTypes: ['vidange', 'revision'],
+                appointmentDate: new Date(new Date().setHours(9, 0, 0, 0)),
+                duration: 120,
+                status: 'programmé',
+                notes: 'Vidange complète et changement des filtres',
+                mechanicIds: [1]
             },
             {
                 id: 2,
-                titre: 'Réparation alternateur',
-                description: 'Remplacement alternateur défectueux',
-                dateDebut: new Date(new Date().setHours(14, 0, 0, 0)),
-                dateFin: new Date(new Date().setHours(17, 0, 0, 0)),
-                mecanicienId: 2,
-                client: 'Moreau Alice',
-                vehicule: 'Renault Clio',
-                statut: 'programmé',
-                priorite: 'haute'
+                clientName: 'Moreau Alice',
+                clientPhone: '06 98 76 54 32',
+                vehicleModel: 'Renault Clio',
+                vehiclePlate: 'XY-789-ZA',
+                serviceTypes: ['electronique'],
+                appointmentDate: new Date(new Date().setHours(14, 0, 0, 0)),
+                duration: 180,
+                status: 'confirmé',
+                notes: 'Remplacement alternateur défectueux',
+                mechanicIds: [2, 4]
             }
         ];
 
@@ -201,22 +231,51 @@ export class PlanningGlobalComponent implements OnInit {
     mettreAJourEvenements() {
         this.events = [];
 
-        // Ajouter les interventions
-        this.interventions.forEach((intervention) => {
-            const mecanicien = this.mecaniciens.find((m) => m.id === intervention.mecanicienId);
+        // Ajouter les rendez-vous
+        this.appointments.forEach((appointment) => {
+            // Calculer la date de fin à partir de la date de début et de la durée
+            const dateDebut = new Date(appointment.appointmentDate);
+            const dateFin = new Date(dateDebut.getTime() + appointment.duration * 60000);
+
+            // Récupérer les noms des mécaniciens assignés
+            const mecaniciensNoms = appointment.mechanicIds.map(id => {
+                const mecanicien = this.mecaniciens.find(m => m.id === id);
+                return mecanicien ? `${mecanicien.prenom} ${mecanicien.nom}` : '';
+            }).filter(nom => nom).join(', ');
+
+            // Récupérer les types de service en format lisible
+            const servicesLibelles = appointment.serviceTypes.map(code => {
+                const service = this.typeServicesOptions.find(s => s.value === code);
+                return service ? service.label : code;
+            }).join(', ');
+
+            // Déterminer la couleur en fonction du statut
+            let backgroundColor = '#2196F3'; // couleur par défaut (bleu)
+
+            if (appointment.status === 'confirmé') {
+                backgroundColor = '#4CAF50'; // vert
+            } else if (appointment.status === 'en cours') {
+                backgroundColor = '#FF9800'; // orange
+            } else if (appointment.status === 'terminé') {
+                backgroundColor = '#607D8B'; // gris
+            } else if (appointment.status === 'annulé') {
+                backgroundColor = '#F44336'; // rouge
+            }
+
             this.events.push({
-                id: `intervention_${intervention.id}`,
-                title: `${intervention.titre} - ${intervention.client}`,
-                start: intervention.dateDebut,
-                end: intervention.dateFin,
-                backgroundColor: this.getCouleurPriorite(intervention.priorite),
-                borderColor: this.getCouleurPriorite(intervention.priorite),
+                id: `appointment_${appointment.id}`,
+                title: `${appointment.clientName} - ${appointment.vehicleModel}`,
+                start: dateDebut,
+                end: dateFin,
+                backgroundColor: backgroundColor,
+                borderColor: backgroundColor,
                 textColor: '#ffffff',
                 extendedProps: {
-                    type: 'intervention',
-                    intervention: intervention,
-                    mecanicienNom: mecanicien ? `${mecanicien.prenom} ${mecanicien.nom}` : 'Non assigné',
-                    description: intervention.description
+                    type: 'appointment',
+                    appointment: appointment,
+                    mecaniciensNoms: mecaniciensNoms,
+                    services: servicesLibelles,
+                    description: appointment.notes
                 }
             });
         });
@@ -262,21 +321,6 @@ export class PlanningGlobalComponent implements OnInit {
         });
     }
 
-    getCouleurPriorite(priorite: string): string {
-        switch (priorite) {
-            case 'basse':
-                return '#4CAF50';
-            case 'normale':
-                return '#2196F3';
-            case 'haute':
-                return '#FF9800';
-            case 'urgente':
-                return '#F44336';
-            default:
-                return '#2196F3';
-        }
-    }
-
     initialiserCalendrier() {
         this.options = {
             plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -286,7 +330,7 @@ export class PlanningGlobalComponent implements OnInit {
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
             },
             editable: true,
             selectable: true,
@@ -313,10 +357,9 @@ export class PlanningGlobalComponent implements OnInit {
     }
 
     handleDateSelect(selectInfo: any) {
-        this.nouveauTypeEvenement = 'intervention';
-        this.nouvelleIntervention = this.initialiserNouvelleIntervention();
-        this.nouvelleIntervention.dateDebut = selectInfo.start;
-        this.nouvelleIntervention.dateFin = selectInfo.end;
+        this.nouveauTypeEvenement = 'appointment';
+        this.nouvelAppointment = this.initialiserNouvelAppointment();
+        this.nouvelAppointment.appointmentDate = selectInfo.start;
 
         this.nouvelleAbsence = this.initialiserNouvelleAbsence();
         this.nouvelleAbsence.dateDebut = selectInfo.start;
@@ -333,9 +376,9 @@ export class PlanningGlobalComponent implements OnInit {
         this.selectedEvent = clickInfo.event;
         const eventType = this.selectedEvent.extendedProps.type;
 
-        if (eventType === 'intervention') {
-            this.nouvelleIntervention = { ...this.selectedEvent.extendedProps.intervention };
-            this.nouveauTypeEvenement = 'intervention';
+        if (eventType === 'appointment') {
+            this.nouvelAppointment = { ...this.selectedEvent.extendedProps.appointment };
+            this.nouveauTypeEvenement = 'appointment';
             this.dialogVisible = true;
         } else if (eventType === 'absence') {
             this.nouvelleAbsence = { ...this.selectedEvent.extendedProps.absence };
@@ -351,29 +394,33 @@ export class PlanningGlobalComponent implements OnInit {
     handleEventDrop(eventDropInfo: any) {
         const eventType = eventDropInfo.event.extendedProps.type;
         const newStart = eventDropInfo.event.start;
-        const newEnd = eventDropInfo.event.end || newStart;
+        const newEnd = eventDropInfo.event.end;
 
-        if (eventType === 'intervention') {
-            const interventionId = parseInt(eventDropInfo.event.id.split('_')[1]);
-            const intervention = this.interventions.find((i) => i.id === interventionId);
-            if (intervention) {
-                intervention.dateDebut = newStart;
-                intervention.dateFin = newEnd;
-                this.verifierConflitHoraire(intervention);
+        if (eventType === 'appointment') {
+            const appointmentId = parseInt(eventDropInfo.event.id.split('_')[1]);
+            const appointment = this.appointments.find((i) => i.id === appointmentId);
+            if (appointment) {
+                appointment.appointmentDate = newStart;
+                // Recalculer la durée en minutes si la date de fin a changé
+                if (newEnd) {
+                    const durationMs = newEnd.getTime() - newStart.getTime();
+                    appointment.duration = durationMs / 60000; // Convertir millisecondes en minutes
+                }
+                this.verifierConflitHoraire(appointment);
             }
         } else if (eventType === 'absence') {
             const absenceId = parseInt(eventDropInfo.event.id.split('_')[1]);
             const absence = this.absences.find((a) => a.id === absenceId);
             if (absence) {
                 absence.dateDebut = newStart;
-                absence.dateFin = newEnd;
+                absence.dateFin = newEnd || newStart;
             }
         } else if (eventType === 'plageSpeciale') {
             const plageId = parseInt(eventDropInfo.event.id.split('_')[1]);
             const plage = this.plagesSpeciales.find((p) => p.id === plageId);
             if (plage) {
                 plage.dateDebut = newStart;
-                plage.dateFin = newEnd;
+                plage.dateFin = newEnd || newStart;
             }
         }
 
@@ -388,24 +435,27 @@ export class PlanningGlobalComponent implements OnInit {
     handleEventResize(eventResizeInfo: any) {
         const eventType = eventResizeInfo.event.extendedProps.type;
         const newEnd = eventResizeInfo.event.end;
+        const start = eventResizeInfo.event.start;
 
-        if (eventType === 'intervention') {
-            const interventionId = parseInt(eventResizeInfo.event.id.split('_')[1]);
-            const intervention = this.interventions.find((i) => i.id === interventionId);
-            if (intervention) {
-                intervention.dateFin = newEnd;
-                this.verifierConflitHoraire(intervention);
+        if (eventType === 'appointment') {
+            const appointmentId = parseInt(eventResizeInfo.event.id.split('_')[1]);
+            const appointment = this.appointments.find((i) => i.id === appointmentId);
+            if (appointment && newEnd) {
+                // Recalculer la durée en minutes
+                const durationMs = newEnd.getTime() - start.getTime();
+                appointment.duration = durationMs / 60000; // Convertir millisecondes en minutes
+                this.verifierConflitHoraire(appointment);
             }
         } else if (eventType === 'absence') {
             const absenceId = parseInt(eventResizeInfo.event.id.split('_')[1]);
             const absence = this.absences.find((a) => a.id === absenceId);
-            if (absence) {
+            if (absence && newEnd) {
                 absence.dateFin = newEnd;
             }
         } else if (eventType === 'plageSpeciale') {
             const plageId = parseInt(eventResizeInfo.event.id.split('_')[1]);
             const plage = this.plagesSpeciales.find((p) => p.id === plageId);
-            if (plage) {
+            if (plage && newEnd) {
                 plage.dateFin = newEnd;
             }
         }
@@ -419,8 +469,8 @@ export class PlanningGlobalComponent implements OnInit {
     }
 
     sauvegarderEvenement() {
-        if (this.nouveauTypeEvenement === 'intervention') {
-            this.sauvegarderIntervention();
+        if (this.nouveauTypeEvenement === 'appointment') {
+            this.sauvegarderAppointment();
         } else if (this.nouveauTypeEvenement === 'absence') {
             this.sauvegarderAbsence();
         } else if (this.nouveauTypeEvenement === 'plageSpeciale') {
@@ -431,31 +481,31 @@ export class PlanningGlobalComponent implements OnInit {
         this.selectedEvent = null;
     }
 
-    sauvegarderIntervention() {
-        if (this.nouvelleIntervention.id === 0) {
-            // Nouvelle intervention
-            const maxId = this.interventions.reduce((max, item) => (item.id > max ? item.id : max), 0);
-            this.nouvelleIntervention.id = maxId + 1;
-            this.interventions.push({ ...this.nouvelleIntervention });
+    sauvegarderAppointment() {
+        if (this.nouvelAppointment.id === 0) {
+            // Nouveau rendez-vous
+            const maxId = this.appointments.reduce((max, item) => (item.id > max ? item.id : max), 0);
+            this.nouvelAppointment.id = maxId + 1;
+            this.appointments.push({ ...this.nouvelAppointment });
             this.messageService.add({
                 severity: 'success',
-                summary: 'Intervention créée',
-                detail: 'Nouvelle intervention ajoutée au planning'
+                summary: 'Rendez-vous créé',
+                detail: 'Nouveau rendez-vous ajouté au planning'
             });
         } else {
-            // Modification d'une intervention existante
-            const index = this.interventions.findIndex((i) => i.id === this.nouvelleIntervention.id);
+            // Modification d'un rendez-vous existant
+            const index = this.appointments.findIndex((i) => i.id === this.nouvelAppointment.id);
             if (index !== -1) {
-                this.interventions[index] = { ...this.nouvelleIntervention };
+                this.appointments[index] = { ...this.nouvelAppointment };
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Intervention mise à jour',
-                    detail: 'Intervention modifiée avec succès'
+                    summary: 'Rendez-vous mis à jour',
+                    detail: 'Rendez-vous modifié avec succès'
                 });
             }
         }
 
-        this.verifierConflitHoraire(this.nouvelleIntervention);
+        this.verifierConflitHoraire(this.nouvelAppointment);
         this.mettreAJourEvenements();
     }
 
@@ -519,8 +569,8 @@ export class PlanningGlobalComponent implements OnInit {
         const eventType = this.selectedEvent.extendedProps.type;
         const eventId = parseInt(this.selectedEvent.id.split('_')[1]);
 
-        if (eventType === 'intervention') {
-            this.interventions = this.interventions.filter((i) => i.id !== eventId);
+        if (eventType === 'appointment') {
+            this.appointments = this.appointments.filter((i) => i.id !== eventId);
         } else if (eventType === 'absence') {
             this.absences = this.absences.filter((a) => a.id !== eventId);
         } else if (eventType === 'plageSpeciale') {
@@ -538,36 +588,55 @@ export class PlanningGlobalComponent implements OnInit {
         });
     }
 
-    verifierConflitHoraire(intervention: Intervention) {
-        if (!intervention.mecanicienId) return;
+    verifierConflitHoraire(appointment: Appointment) {
+        if (!appointment.mechanicIds || appointment.mechanicIds.length === 0) return;
 
-        // Vérifier les chevauchements avec d'autres interventions
-        const conflits = this.interventions.filter(
-            (i) =>
-                i.id !== intervention.id &&
-                i.mecanicienId === intervention.mecanicienId &&
-                ((i.dateDebut <= intervention.dateDebut && i.dateFin > intervention.dateDebut) ||
-                    (i.dateDebut < intervention.dateFin && i.dateFin >= intervention.dateFin) ||
-                    (i.dateDebut >= intervention.dateDebut && i.dateFin <= intervention.dateFin))
-        );
+        const dateDebut = new Date(appointment.appointmentDate);
+        const dateFin = new Date(dateDebut.getTime() + appointment.duration * 60000);
 
-        // Vérifier les absences
-        const absenceConflits = this.absences.filter(
-            (a) =>
-                a.mecanicienId === intervention.mecanicienId &&
-                ((a.dateDebut <= intervention.dateDebut && a.dateFin > intervention.dateDebut) ||
-                    (a.dateDebut < intervention.dateFin && a.dateFin >= intervention.dateFin) ||
-                    (a.dateDebut >= intervention.dateDebut && a.dateFin <= intervention.dateFin))
-        );
+        // Pour chaque mécanicien assigné
+        for (const mechanicId of appointment.mechanicIds) {
+            // Vérifier les chevauchements avec d'autres rendez-vous
+            const conflits = this.appointments.filter(
+                (a) =>
+                    a.id !== appointment.id &&
+                    a.mechanicIds.includes(mechanicId) &&
+                    this.checkTimeOverlap(
+                        a.appointmentDate,
+                        new Date(new Date(a.appointmentDate).getTime() + a.duration * 60000),
+                        dateDebut,
+                        dateFin
+                    )
+            );
 
-        if (conflits.length > 0 || absenceConflits.length > 0) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Conflit détecté',
-                detail: 'Attention: Le mécanicien a déjà des interventions ou absences programmées sur cette plage horaire',
-                sticky: true
-            });
+            // Vérifier les absences
+            const absenceConflits = this.absences.filter(
+                (a) =>
+                    a.mecanicienId === mechanicId &&
+                    this.checkTimeOverlap(
+                        a.dateDebut,
+                        a.dateFin,
+                        dateDebut,
+                        dateFin
+                    )
+            );
+
+            if (conflits.length > 0 || absenceConflits.length > 0) {
+                const mecanicien = this.mecaniciens.find(m => m.id === mechanicId);
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Conflit détecté',
+                    detail: `Attention: ${mecanicien?.prenom} ${mecanicien?.nom} a déjà des rendez-vous ou absences programmés sur cette plage horaire`,
+                    sticky: true
+                });
+            }
         }
+    }
+
+    checkTimeOverlap(start1: Date, end1: Date, start2: Date, end2: Date): boolean {
+        return (start1 <= start2 && end1 > start2) ||
+               (start1 < end2 && end1 >= end2) ||
+               (start1 >= start2 && end1 <= end2);
     }
 
     fermerDialog() {
@@ -575,7 +644,7 @@ export class PlanningGlobalComponent implements OnInit {
         this.selectedEvent = null;
     }
 
-    changerAffichage(vue: 'jour' | 'semaine' | 'mois') {
+    changerAffichage(vue: 'jour' | 'semaine' | 'mois' | 'liste') {
         this.affichage = vue;
 
         if (vue === 'jour') {
@@ -584,6 +653,8 @@ export class PlanningGlobalComponent implements OnInit {
             this.options.initialView = 'timeGridWeek';
         } else if (vue === 'mois') {
             this.options.initialView = 'dayGridMonth';
+        } else if (vue === 'liste') {
+            this.options.initialView = 'listWeek';
         }
 
         // Forcer la mise à jour du calendrier
@@ -591,6 +662,6 @@ export class PlanningGlobalComponent implements OnInit {
     }
 
     get activeTabIndex(): number {
-        return this.nouveauTypeEvenement === 'intervention' ? 0 : this.nouveauTypeEvenement === 'absence' ? 1 : 2;
+        return this.nouveauTypeEvenement === 'appointment' ? 0 : this.nouveauTypeEvenement === 'absence' ? 1 : 2;
     }
 }

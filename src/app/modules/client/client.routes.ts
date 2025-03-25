@@ -1,11 +1,17 @@
+import { AppointmentHistoryComponent } from './appointment/appointment-history';
 import { AppointmentBookingComponent } from './appointment/appointment-booking';
 import { Routes } from '@angular/router';
 import { ClientProfile } from './profile/client.profile';
 import { HomeComponent } from './home/home';
+import { AuthComponent } from './auth.component';
+import { InvoiceHistoryComponent } from './appointment/invoice-history';
 
 export default [
     { path: 'profile', component: ClientProfile },
     { path: 'appointment', component: AppointmentBookingComponent },
+    { path: 'appointment-history', component: AppointmentHistoryComponent },
+    { path: 'invoice', component: InvoiceHistoryComponent },
     { path: '', component: HomeComponent },
+    { path: 'auth', component: AuthComponent },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;

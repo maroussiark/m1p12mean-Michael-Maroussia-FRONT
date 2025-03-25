@@ -22,13 +22,12 @@ interface Appointment {
     clientPhone: string;
     vehicleModel: string;
     vehiclePlate: string;
-    serviceTypes: string[]; // Modifié pour stocker plusieurs services
+    serviceTypes: string[];
     appointmentDate: Date;
     duration: number;
     status: string;
     notes: string;
-    mechanicIds: number[]; // Modifié pour stocker plusieurs mécaniciens
-
+    mechanicIds: number[];
 }
 
 interface MechanicSlot {
