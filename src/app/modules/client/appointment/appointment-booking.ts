@@ -14,8 +14,11 @@ import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
-// Importation des modèles partagés
-import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatus, Invoice, InvoiceStatus } from '../../../core/models';
+// Import des modèles partagés depuis '../../../core/models/'
+import { Vehicle, ServiceType, Appointment, AppointmentStatus, AppointmentService, Part } from '../../../core/models';
+// Si vous avez aussi l'interface Invoice et InvoiceStatus définis, importez-les
+import { Invoice, InvoiceStatus,InvoiceItem } from '../../../core/models';
+import { Tooltip, TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-appointment-booking',
@@ -33,7 +36,8 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
     ToastModule,
     DialogModule,
     TableModule,
-    TagModule
+    TagModule,
+    TooltipModule
   ],
   providers: [MessageService],
   template: `
@@ -57,11 +61,6 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
   <div [ngSwitch]="activeTabIndex">
     <!-- Onglet Mes Rendez-vous -->
     <div *ngSwitchCase="0" class="bg-white rounded-lg shadow-md p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-gray-800">Mes Rendez-vous</h2>
-        <button pButton label="Prendre un rendez-vous" icon="pi pi-calendar-plus" class="p-button-primary" (click)="startNewAppointment()"></button>
-      </div>
-
       <p-table [value]="appointments" [paginator]="true" [rows]="5" responsiveLayout="stack">
         <ng-template pTemplate="header">
           <tr>
@@ -79,8 +78,8 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
             <td>{{ appointment.startTime | date:'HH:mm' }}</td>
             <td>{{ getVehicleDisplay(appointment.vehicleId) }}</td>
             <td>
-              <div *ngFor="let service of appointment.services; let last = last">
-                {{ getServiceName(service.serviceType) }}{{ !last ? ',' : '' }}
+              <div *ngFor="let s of appointment.services; let last = last">
+                {{ getServiceName(s.serviceType) }}{{ !last ? ', ' : '' }}
               </div>
             </td>
             <td>
@@ -121,7 +120,7 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
 
     <!-- Onglet Nouveau Rendez-vous -->
     <div *ngSwitchCase="1" class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold text-gray-800 mb-6">Prendre un rendez-vous</h2>
+      <!-- Formulaire et étapes (code inchangé par rapport à la version précédente) -->
       <p-steps [model]="steps" [activeIndex]="currentStep" [readonly]="false" (activeIndexChange)="onStepChange($event)" styleClass="mb-6"></p-steps>
       <form [formGroup]="appointmentForm">
         <div [ngSwitch]="currentStep" class="mt-6">
@@ -277,57 +276,69 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
     <!-- Onglet Historique -->
     <div *ngSwitchCase="2" class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-xl font-bold text-gray-800 mb-6">Historique des Services</h2>
-      <p-table [value]="appointments" [paginator]="true" [rows]="5" responsiveLayout="stack">
+      <!-- Tableau des véhicules avec row expansion pour afficher leurs rendez-vous anciens -->
+      <p-table [value]="getVehiclesWithOldAppointments()" dataKey="_id" responsiveLayout="stack">
         <ng-template pTemplate="header">
           <tr>
-            <th>Date</th>
-            <th>Heure</th>
             <th>Véhicule</th>
-            <th>Services</th>
-            <th>Statut</th>
-            <th>Actions</th>
+            <th>Immatriculation</th>
+            <th>Modèle</th>
+            <th>Année</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-appointment>
+        <ng-template pTemplate="body" let-vehicle>
           <tr>
-            <td>{{ appointment.startTime | date:'dd/MM/yyyy' }}</td>
-            <td>{{ appointment.startTime | date:'HH:mm' }}</td>
-            <td>{{ getVehicleDisplay(appointment.vehicleId) }}</td>
             <td>
-              <div *ngFor="let service of appointment.services; let last = last">
-                {{ getServiceName(service.serviceType) }}{{ !last ? ',' : '' }}
-              </div>
+              <a  (click)="toggleRow(vehicle)">
+                <i class="pi" [ngClass]="{'pi-chevron-down': isRowExpanded(vehicle), 'pi-chevron-right': !isRowExpanded(vehicle)}"></i>
+                {{ vehicle.make }} {{ vehicle.model }}
+              </a>
             </td>
-            <td>
-              <p-tag [value]="appointment.status" [severity]="getStatusSeverity(appointment.status)"></p-tag>
-            </td>
-            <td>
-              <div class="flex gap-2">
-                <button pButton icon="pi pi-calendar" class="p-button-rounded p-button-text p-button-sm" pTooltip="Détails" (click)="viewAppointmentDetails(appointment)"></button>
-                <button
-                  pButton
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-text p-button-sm"
-                  pTooltip="Modifier"
-                  [disabled]="appointment.status === AppointmentStatus.COMPLETED || appointment.status === AppointmentStatus.CANCELED"
-                  (click)="editAppointment(appointment)"
-                ></button>
-                <button
-                  pButton
-                  icon="pi pi-times"
-                  class="p-button-rounded p-button-text p-button-sm p-button-danger"
-                  pTooltip="Annuler"
-                  [disabled]="appointment.status === AppointmentStatus.COMPLETED || appointment.status === AppointmentStatus.CANCELED"
-                  (click)="cancelAppointment(appointment)"
-                ></button>
-                <button
-                  pButton
-                  icon="pi pi-file"
-                  class="p-button-rounded p-button-text p-button-sm"
-                  pTooltip="Facture"
-                  (click)="viewInvoiceDetails(appointment)"
-                ></button>
-              </div>
+            <td>{{ vehicle.licensePlate }}</td>
+            <td>{{ vehicle.model }}</td>
+            <td>{{ vehicle.year }}</td>
+          </tr>
+          <tr *ngIf="isRowExpanded(vehicle)">
+            <td colspan="4">
+              <p-table [value]="getAppointmentsByVehicle(vehicle._id)" responsiveLayout="stack">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Date</th>
+                    <th>Heure</th>
+                    <th>Mécaniciens</th>
+                    <th>Services / Pièces</th>
+                    <th>Options</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-appointment>
+                  <tr>
+                    <td>{{ appointment.startTime | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ appointment.startTime | date:'HH:mm' }}</td>
+                    <td>
+                      <span *ngFor="let mech of getMechanicsNames(appointment.mechanics); let last = last">
+                        {{ mech }}{{ !last ? ', ' : '' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div *ngFor="let s of appointment.services">
+                        {{ getServiceName(s.serviceType) }} ({{ s.estimatedDuration }} min - €{{ s.estimatedCost }})
+                      </div>
+                      <div *ngIf="appointment.partsUsed && appointment.partsUsed.length">
+                        <strong>Pièces :</strong>
+                        <div *ngFor="let part of appointment.partsUsed">
+                          {{ part.part }} (Quantité : {{ part.quantity }})
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton severity="info" icon="pi pi-file" pTooltip="Regarder facture" (click)="viewInvoiceDetails(appointment)"></button>
+                            <button pButton severity="warn" icon="pi pi-info-circle" pTooltip="Détail" (click)="viewAppointmentDetails(appointment)"></button>
+                        </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
             </td>
           </tr>
         </ng-template>
@@ -346,8 +357,8 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
       </div>
       <div>
         <h4 class="text-sm font-medium text-gray-500 mb-1">Services</h4>
-        <span class="font-medium text-gray-800" *ngFor="let service of selectedAppointment.services; let last = last">
-          {{ getServiceName(service.serviceType) }}{{ !last ? ', ' : '' }}
+        <span class="font-medium text-gray-800" *ngFor="let s of selectedAppointment.services; let last = last">
+          {{ getServiceName(s.serviceType) }}{{ !last ? ', ' : '' }}
         </span>
       </div>
       <div>
@@ -371,7 +382,7 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
   <ng-container *ngIf="factureSelectionnee">
     <div class="p-4">
       <div class="text-center mb-4">
-        <h2 class="text-xl font-bold">Facture du {{ factureSelectionnee.date | date:'dd/MM/yyyy' }}</h2>
+        <h2 class="text-xl font-bold">Facture du {{ factureSelectionnee.issueDate | date:'dd/MM/yyyy' }}</h2>
       </div>
       <table class="w-full mb-4">
         <thead>
@@ -381,27 +392,23 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let operation of factureSelectionnee.operations" class="border-b">
-            <td class="py-2">{{ operation.description }}</td>
-            <td class="text-right py-2">{{ operation.prix | currency:'EUR':'symbol':'1.2-2' }}</td>
+          <tr *ngFor="let item of factureSelectionnee.items" class="border-b">
+            <td class="py-2">{{ item.description }} ({{ item.type }})</td>
+            <td class="text-right py-2">{{ item.total | currency:'EUR':'symbol':'1.2-2' }}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td class="py-2 font-bold">Total HT</td>
-            <td class="text-right py-2">{{ factureSelectionnee.totalHT | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td class="text-right py-2">{{ factureSelectionnee.subtotal | currency:'EUR':'symbol':'1.2-2' }}</td>
           </tr>
           <tr>
-            <td class="py-2 font-bold">TVA ({{ factureSelectionnee.tvaRate }}%)</td>
-            <td class="text-right py-2">
-              {{ (factureSelectionnee.totalTTC - factureSelectionnee.totalHT) | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
+            <td class="py-2 font-bold">TVA ({{ factureSelectionnee.taxRate }}%)</td>
+            <td class="text-right py-2">{{ (factureSelectionnee.totalAmount - factureSelectionnee.subtotal) | currency:'EUR':'symbol':'1.2-2' }}</td>
           </tr>
           <tr>
             <td class="py-2 font-bold text-lg">Total TTC</td>
-            <td class="text-right py-2 font-bold text-lg">
-              {{ factureSelectionnee.totalTTC | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
+            <td class="text-right py-2 font-bold text-lg">{{ factureSelectionnee.totalAmount | currency:'EUR':'symbol':'1.2-2' }}</td>
           </tr>
         </tfoot>
       </table>
@@ -429,7 +436,7 @@ import { Vehicle, ServiceType, Appointment, AppointmentService, AppointmentStatu
   ]
 })
 export class AppointmentBookingComponent implements OnInit {
-  // Permet d'utiliser l'enum dans le template
+  // Pour utiliser l'enum dans le template
   AppointmentStatus = AppointmentStatus;
 
   // Onglets
@@ -539,7 +546,7 @@ export class AppointmentBookingComponent implements OnInit {
       _id: 'app1',
       clientId: 'user1',
       vehicleId: 'veh1',
-      mechanics: [],
+      mechanics: ['mec1', 'mec2'],
       startTime: new Date('2025-03-25T10:00:00'),
       status: AppointmentStatus.SCHEDULED,
       services: [
@@ -552,7 +559,7 @@ export class AppointmentBookingComponent implements OnInit {
       _id: 'app2',
       clientId: 'user1',
       vehicleId: 'veh2',
-      mechanics: [],
+      mechanics: ['mec3'],
       startTime: new Date('2025-03-10T14:00:00'),
       status: AppointmentStatus.COMPLETED,
       services: [
@@ -565,7 +572,7 @@ export class AppointmentBookingComponent implements OnInit {
       _id: 'app3',
       clientId: 'user1',
       vehicleId: 'veh3',
-      mechanics: [],
+      mechanics: ['mec1'],
       startTime: new Date('2025-04-05T09:00:00'),
       status: AppointmentStatus.SCHEDULED,
       services: [
@@ -573,16 +580,29 @@ export class AppointmentBookingComponent implements OnInit {
         { serviceType: 'srv4', estimatedDuration: 30, estimatedCost: 59 }
       ],
       totalEstimatedCost: 138,
-      notes: 'Préparation au contrôle technique'
+      notes: 'Préparation au contrôle technique',
+      partsUsed: [
+        { part: 'Filtre à air', quantity: 1 },
+        { part: 'Plaquettes de frein', quantity: 4 }
+      ]
     }
+  ];
+
+  // Pour le row expansion des véhicules dans l'historique
+  expandedVehicleIds: { [key: string]: boolean } = {};
+
+  // Liste fictive des mécaniciens
+  mechanics = [
+    { _id: 'mec1', name: 'Jean Dupont' },
+    { _id: 'mec2', name: 'Marie Durand' },
+    { _id: 'mec3', name: 'Pierre Martin' }
   ];
 
   // Dialogs
   appointmentDetailsVisible = false;
   selectedAppointment: Appointment | null = null;
   afficherFacture = false;
-  // Structure pour la facture utilisée dans la dialog
-  factureSelectionnee: any = null;
+  factureSelectionnee: Invoice | null = null;
 
   constructor(private fb: FormBuilder, private messageService: MessageService) {
     this.appointmentForm = this.fb.group({
@@ -732,9 +752,9 @@ export class AppointmentBookingComponent implements OnInit {
       const timeSlot = this.timeSlots.find(slot => slot.id === formValue.timeSlotId);
       const startTime = timeSlot ? this.getStartDateTime(formValue.date, timeSlot.time) : new Date();
       const newAppointment: Appointment = {
-        clientId: 'user1', // À adapter selon le contexte
+        clientId: 'user1',
         vehicleId: formValue.vehicleId,
-        mechanics: [],
+        mechanics: [], // À renseigner ultérieurement
         startTime: startTime,
         status: AppointmentStatus.SCHEDULED,
         services: selectedServices.map(service => ({
@@ -749,7 +769,7 @@ export class AppointmentBookingComponent implements OnInit {
       this.messageService.add({
         severity: 'success',
         summary: 'Rendez-vous confirmé',
-        detail: ''
+        detail: `Votre rendez-vous pour ${selectedServices.length} service(s) a été enregistré pour le ${new Date(formValue.date).toLocaleDateString()} à ${timeSlot?.time}`
       });
       this.activeTabIndex = 0;
       this.appointmentForm.reset();
@@ -762,18 +782,9 @@ export class AppointmentBookingComponent implements OnInit {
     this.appointmentDetailsVisible = true;
   }
 
-  formatTime(date: Date): string {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  }
-
   editAppointment(appointment: Appointment) {
     const vehicle = this.vehicles.find(v => v._id === appointment.vehicleId);
-    // On récupère le créneau en comparant l'heure formatée
-    const formattedTime = this.formatTime(appointment.startTime);
-    const timeSlot = this.timeSlots.find(slot => slot.time === formattedTime);
-
+    const timeSlot = this.timeSlots.find(slot => slot.time === this.formatTime(appointment.startTime));
     const serviceIds = appointment.services.map(s => s.serviceType);
     if (vehicle && timeSlot) {
       this.appointmentForm.patchValue({
@@ -815,20 +826,84 @@ export class AppointmentBookingComponent implements OnInit {
     }
   }
 
+  // Méthode pour formater une date au format HH:mm
+  formatTime(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  // Renvoie les véhicules ayant au moins un rendez-vous ancien (startTime < aujourd'hui)
+  getVehiclesWithOldAppointments(): Vehicle[] {
+    const today = new Date();
+    return this.vehicles.filter(vehicle =>
+      this.appointments.some(app => app.vehicleId === vehicle._id && app.startTime < today)
+    );
+  }
+
+  // Renvoie les rendez-vous anciens d'un véhicule donné
+  getAppointmentsByVehicle(vehicleId: string): Appointment[] {
+    const today = new Date();
+    return this.appointments.filter(app => app.vehicleId === vehicleId && app.startTime < today);
+  }
+
+  // Gestion du row expansion pour l'historique
+  toggleRow(vehicle: Vehicle) {
+    this.expandedVehicleIds[vehicle._id!] = !this.expandedVehicleIds[vehicle._id!];
+  }
+
+  isRowExpanded(vehicle: Vehicle): boolean {
+    return !!this.expandedVehicleIds[vehicle._id!];
+  }
+
+  // Récupère les noms des mécaniciens à partir de leurs identifiants
+  getMechanicsNames(ids: string[]): string[] {
+    return ids.map(id => {
+      const found = this.mechanics.find(m => m._id === id);
+      return found ? found.name : id;
+    });
+  }
+
+  // Génération de la facture en utilisant la structure Invoice
   viewInvoiceDetails(appointment: Appointment) {
-    // Simulation : transformation des données du rendez-vous en facture fictive
+    const items = appointment.services.map(s => {
+      const service = this.serviceTypes.find(st => st._id === s.serviceType);
+      return {
+        type: 'service' as const,
+        description: service ? service.name : 'Service inconnu',
+        quantity: 1,
+        unitPrice: service ? service.baseCost : 0,
+        total: service ? service.baseCost : 0
+      };
+    });
+    if (appointment.partsUsed && appointment.partsUsed.length) {
+      appointment.partsUsed.forEach(part => {
+        // Exemple : fixer un prix unitaire pour la pièce (à remplacer par la donnée réelle)
+        const partPrice = 50;
+        items.push({
+          type: 'service' as const,
+          description: part.part,
+          quantity: part.quantity,
+          unitPrice: partPrice,
+          total: partPrice * part.quantity
+        });
+      });
+    }
+    const subtotal = items.reduce((acc, item) => acc + item.total, 0);
+    const taxRate = 20; // Exemple : 20%
+    const totalAmount = subtotal * 1.2;
     this.factureSelectionnee = {
-      date: appointment.startTime,
-      operations: appointment.services.map(s => {
-        const service = this.serviceTypes.find(st => st._id === s.serviceType);
-        return {
-          description: service ? service.name : 'Service inconnu',
-          prix: service ? service.baseCost : 0
-        };
-      }),
-      totalHT: appointment.totalEstimatedCost,
-      tvaRate: 20,
-      totalTTC: (appointment.totalEstimatedCost || 0) * 1.2
+      _id: 'inv_' + appointment._id,
+      appointmentId: appointment._id!,
+      clientId: appointment.clientId,
+      invoiceNumber: 'INV-' + appointment._id,
+      items: items,
+      subtotal: subtotal,
+      taxRate: taxRate,
+      totalAmount: totalAmount,
+      status: InvoiceStatus.ISSUED,
+      issueDate: new Date(),
+      dueDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
     };
     this.afficherFacture = true;
   }
