@@ -10,27 +10,11 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { SelectModule } from 'primeng/select';
 
-interface Vehicle {
-  id: number;
-  marque: string;
-  modele: string;
-  annee: number;
-  immatriculation: string;
-  dernierEntretien: Date;
-  statut: 'actif' | 'entretien' | 'réparation';
-}
-
-interface Client {
-  id: number;
-  nom: string;
-  prenom: string;
-  email: string;
-  telephone: string;
-  adresse: string;
-  dateInscription: Date;
-  photoUrl: string;
-}
+// Import the new models
+import { User, UserRole } from '../../../core/models/user.model';
+import { Vehicle } from '../../../core/models/vehicle.model';
 
 @Component({
   selector: 'app-client-profile',
@@ -45,39 +29,40 @@ interface Client {
     TagModule,
     DialogModule,
     InputTextModule,
-    ToastModule
+    ToastModule,
+    SelectModule
   ],
   providers: [MessageService],
   template: `
     <div class="w-full p-4">
-      <!-- Section en-tête responsive -->
+      <!-- Profile Section -->
       <div class="flex flex-col md:flex-row gap-6 mb-8">
-        <!-- Carte de profil client -->
+        <!-- Client Profile Card -->
         <div class="w-full md:w-1/3 bg-white rounded-lg shadow-md p-6">
           <div class="flex flex-col items-center text-center mb-4">
             <p-avatar
-              [image]="client.photoUrl || 'assets/default-avatar.png'"
+              [image]="'assets/default-avatar.png'"
               size="xlarge"
               shape="circle"
               class="mb-4"
               [style]="{'width': '120px', 'height': '120px'}"
             ></p-avatar>
-            <h2 class="text-2xl font-bold text-gray-800">{{client.prenom}} {{client.nom}}</h2>
-            <p class="text-sm text-gray-500">Client depuis {{client.dateInscription | date:'MMMM yyyy'}}</p>
+            <h2 class="text-2xl font-bold text-gray-800">
+              {{user.profile?.firstName || 'N/A'}} {{user.profile?.lastName || ''}}
+            </h2>
+            <p class="text-sm text-gray-500">
+              Client depuis {{user.createdAt ? (user.createdAt | date:'MMMM yyyy') : 'Date inconnue'}}
+            </p>
           </div>
 
           <div class="divide-y divide-gray-200">
             <div class="py-3 flex justify-between">
               <span class="text-gray-600 font-medium">Email</span>
-              <span class="text-gray-800">{{client.email}}</span>
+              <span class="text-gray-800">{{user.email}}</span>
             </div>
             <div class="py-3 flex justify-between">
               <span class="text-gray-600 font-medium">Téléphone</span>
-              <span class="text-gray-800">{{client.telephone}}</span>
-            </div>
-            <div class="py-3 flex justify-between">
-              <span class="text-gray-600 font-medium">Adresse</span>
-              <span class="text-gray-800">{{client.adresse}}</span>
+              <span class="text-gray-800">{{user.profile?.phoneNumber || 'Non renseigné'}}</span>
             </div>
           </div>
 
@@ -92,10 +77,10 @@ interface Client {
           </div>
         </div>
 
-        <!-- Résumé des véhicules -->
+        <!-- Vehicle Overview -->
         <div class="w-full md:w-2/3 bg-white rounded-lg shadow-md p-6">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-gray-800">Aperçu des Véhicules</h2>
+            <h2 class="text-xl font-bold text-gray-800">Mes Véhicules</h2>
             <span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm font-medium">
               {{vehicles.length}} véhicule(s)
             </span>
@@ -104,14 +89,19 @@ interface Client {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div *ngFor="let vehicle of vehicles.slice(0, 3)" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-gray-800">{{vehicle.marque}} {{vehicle.modele}}</h3>
+                <h3 class="font-bold text-gray-800">{{vehicle.make}} {{vehicle.model}}</h3>
                 <p-tag
-                  [value]="vehicle.statut"
-                  [severity]="getStatusSeverity(vehicle.statut)"
+                  [value]="getVehicleStatus(vehicle)"
+                  [severity]="getStatusSeverity(getVehicleStatus(vehicle))"
                 ></p-tag>
               </div>
-              <p class="text-sm text-gray-600 mb-1">{{vehicle.annee}} | {{vehicle.immatriculation}}</p>
-              <p class="text-xs text-gray-500">Dernier entretien: {{vehicle.dernierEntretien | date}}</p>
+              <p class="text-sm text-gray-600 mb-1">
+                {{vehicle.year}} | {{vehicle.licensePlate}}
+              </p>
+              <p class="text-xs text-gray-500">
+                Dernier entretien:
+                {{vehicle.technicalDetails.lastMaintenanceDate ? (vehicle.technicalDetails.lastMaintenanceDate | date) : 'N/A'}}
+              </p>
             </div>
           </div>
 
@@ -127,10 +117,10 @@ interface Client {
         </div>
       </div>
 
-      <!-- Liste complète des véhicules -->
+      <!-- Full Vehicle List -->
       <div id="vehicle-list" class="bg-white rounded-lg shadow-md p-6">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800">Mes Véhicules</h2>
+          <h2 class="text-xl font-bold text-gray-800">Liste Détaillée des Véhicules</h2>
           <button
             pButton
             label="Ajouter un véhicule"
@@ -155,6 +145,7 @@ interface Client {
               <th>Marque/Modèle</th>
               <th>Année</th>
               <th>Immatriculation</th>
+              <th>Km</th>
               <th>Dernier Entretien</th>
               <th>Statut</th>
               <th>Actions</th>
@@ -162,22 +153,15 @@ interface Client {
           </ng-template>
           <ng-template pTemplate="body" let-vehicle>
             <tr>
-              <td>
-                <div class="font-medium">{{vehicle.marque}} {{vehicle.modele}}</div>
-              </td>
-              <td>
-                {{vehicle.annee}}
-              </td>
-              <td>
-                {{vehicle.immatriculation}}
-              </td>
-              <td>
-                {{vehicle.dernierEntretien | date}}
-              </td>
+              <td>{{vehicle.make}} {{vehicle.model}}</td>
+              <td>{{vehicle.year}}</td>
+              <td>{{vehicle.licensePlate}}</td>
+              <td>{{vehicle.technicalDetails.mileage}} km</td>
+              <td>{{vehicle.technicalDetails.lastMaintenanceDate ? (vehicle.technicalDetails.lastMaintenanceDate | date) : 'N/A'}}</td>
               <td>
                 <p-tag
-                  [value]="vehicle.statut"
-                  [severity]="getStatusSeverity(vehicle.statut)"
+                  [value]="getVehicleStatus(vehicle)"
+                  [severity]="getStatusSeverity(getVehicleStatus(vehicle))"
                 ></p-tag>
               </td>
               <td>
@@ -207,7 +191,7 @@ interface Client {
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="6" class="text-center p-4">
+              <td colspan="7" class="text-center p-4">
                 <div class="text-gray-500">Aucun véhicule enregistré</div>
                 <button
                   pButton
@@ -223,7 +207,7 @@ interface Client {
       </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Edit Profile Dialog -->
     <p-dialog
       [(visible)]="editProfileVisible"
       header="Modifier Profil"
@@ -233,47 +217,29 @@ interface Client {
     >
       <div class="grid grid-cols-1 gap-4">
         <div class="flex flex-col">
-          <label for="prenom" class="mb-1 text-sm font-medium text-gray-700">Prénom</label>
+          <label for="firstName" class="mb-1 text-sm font-medium text-gray-700">Prénom</label>
           <input
             pInputText
-            id="prenom"
-            [(ngModel)]="editedClient.prenom"
+            id="firstName"
+            [(ngModel)]="editedUser.profile!.firstName"
             class="w-full"
           />
         </div>
         <div class="flex flex-col">
-          <label for="nom" class="mb-1 text-sm font-medium text-gray-700">Nom</label>
+          <label for="lastName" class="mb-1 text-sm font-medium text-gray-700">Nom</label>
           <input
             pInputText
-            id="nom"
-            [(ngModel)]="editedClient.nom"
+            id="lastName"
+            [(ngModel)]="editedUser.profile!.lastName"
             class="w-full"
           />
         </div>
         <div class="flex flex-col">
-          <label for="email" class="mb-1 text-sm font-medium text-gray-700">Email</label>
+          <label for="phoneNumber" class="mb-1 text-sm font-medium text-gray-700">Téléphone</label>
           <input
             pInputText
-            id="email"
-            [(ngModel)]="editedClient.email"
-            class="w-full"
-          />
-        </div>
-        <div class="flex flex-col">
-          <label for="telephone" class="mb-1 text-sm font-medium text-gray-700">Téléphone</label>
-          <input
-            pInputText
-            id="telephone"
-            [(ngModel)]="editedClient.telephone"
-            class="w-full"
-          />
-        </div>
-        <div class="flex flex-col">
-          <label for="adresse" class="mb-1 text-sm font-medium text-gray-700">Adresse</label>
-          <input
-            pInputText
-            id="adresse"
-            [(ngModel)]="editedClient.adresse"
+            id="phoneNumber"
+            [(ngModel)]="editedUser.profile!.phoneNumber"
             class="w-full"
           />
         </div>
@@ -284,48 +250,71 @@ interface Client {
       </ng-template>
     </p-dialog>
 
+    <!-- Add/Edit Vehicle Dialog -->
     <p-dialog
       [(visible)]="vehicleDialogVisible"
-      [header]="editedVehicle.id ? 'Modifier Véhicule' : 'Ajouter Véhicule'"
+      [header]="editedVehicle._id ? 'Modifier Véhicule' : 'Ajouter Véhicule'"
       [modal]="true"
       [style]="{width: '90%', maxWidth: '500px'}"
       [breakpoints]="{'768px': '95vw'}"
     >
       <div class="grid grid-cols-1 gap-4">
         <div class="flex flex-col">
-          <label for="marque" class="mb-1 text-sm font-medium text-gray-700">Marque</label>
+          <label for="make" class="mb-1 text-sm font-medium text-gray-700">Marque</label>
           <input
             pInputText
-            id="marque"
-            [(ngModel)]="editedVehicle.marque"
+            id="make"
+            [(ngModel)]="editedVehicle.make"
             class="w-full"
           />
         </div>
         <div class="flex flex-col">
-          <label for="modele" class="mb-1 text-sm font-medium text-gray-700">Modèle</label>
+          <label for="model" class="mb-1 text-sm font-medium text-gray-700">Modèle</label>
           <input
             pInputText
-            id="modele"
-            [(ngModel)]="editedVehicle.modele"
+            id="model"
+            [(ngModel)]="editedVehicle.model"
             class="w-full"
           />
         </div>
         <div class="flex flex-col">
-          <label for="annee" class="mb-1 text-sm font-medium text-gray-700">Année</label>
+          <label for="year" class="mb-1 text-sm font-medium text-gray-700">Année</label>
           <input
             pInputText
-            id="annee"
-            [(ngModel)]="editedVehicle.annee"
+            id="year"
+            [(ngModel)]="editedVehicle.year"
             type="number"
             class="w-full"
           />
         </div>
         <div class="flex flex-col">
-          <label for="immatriculation" class="mb-1 text-sm font-medium text-gray-700">Immatriculation</label>
+          <label for="licensePlate" class="mb-1 text-sm font-medium text-gray-700">Immatriculation</label>
           <input
             pInputText
-            id="immatriculation"
-            [(ngModel)]="editedVehicle.immatriculation"
+            id="licensePlate"
+            [(ngModel)]="editedVehicle.licensePlate"
+            class="w-full"
+          />
+        </div>
+        <div class="flex flex-col">
+            <label for="fuelType" class="mb-1 text-sm font-medium text-gray-700">Type de Carburant</label>
+            <p-select
+                id="fuelType"
+                [options]="fuelTypeOptions"
+                [(ngModel)]="editedVehicle.technicalDetails.fuelType"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Sélectionnez un type de carburant"
+                class="w-full"
+            />
+        </div>
+        <div class="flex flex-col">
+          <label for="mileage" class="mb-1 text-sm font-medium text-gray-700">Kilométrage</label>
+          <input
+            pInputText
+            id="mileage"
+            [(ngModel)]="editedVehicle.technicalDetails.mileage"
+            type="number"
             class="w-full"
           />
         </div>
@@ -362,88 +351,110 @@ interface Client {
     }
   `]
 })
-export class ClientProfile implements OnInit {
-  client: Client = {
-    id: 1,
-    nom: 'Dupont',
-    prenom: 'Jean',
+export class ClientProfileComponent implements OnInit {
+
+  fuelTypeOptions = [
+    { label: 'Essence', value: 'Essence' },
+    { label: 'Diesel', value: 'Diesel' },
+    { label: 'Hybride', value: 'Hybride' },
+    { label: 'Électrique', value: 'Électrique' },
+    { label: 'GPL', value: 'GPL' }
+  ];
+  // Initial mock user data
+  user: User = {
+    _id: '1',
     email: 'jean.dupont@example.com',
-    telephone: '06 12 34 56 78',
-    adresse: '123 Rue de la République, 75001 Paris',
-    dateInscription: new Date('2022-05-15'),
-    photoUrl: ''
+    role: UserRole.CLIENT,
+    profile: {
+      firstName: 'Jean',
+      lastName: 'Dupont',
+      phoneNumber: '06 12 34 56 78'
+    },
+    createdAt: new Date('2022-05-15'),
+    isActive: true
   };
 
-  editedClient: Client = {...this.client};
+  // Editable copy for profile dialog
+  editedUser: User = {...this.user};
   editProfileVisible: boolean = false;
 
+  // Initial mock vehicle data
   vehicles: Vehicle[] = [
     {
-      id: 1,
-      marque: 'Renault',
-      modele: 'Clio',
-      annee: 2018,
-      immatriculation: 'AB-123-CD',
-      dernierEntretien: new Date('2023-10-12'),
-      statut: 'actif'
+      _id: '1',
+      userId: '1',
+      make: 'Renault',
+      model: 'Clio',
+      year: 2018,
+      licensePlate: 'AB-123-CD',
+      technicalDetails: {
+        mileage: 75000,
+        fuelType: 'Essence',
+        lastMaintenanceDate: new Date('2023-10-12')
+      },
+      maintenanceHistory: []
     },
     {
-      id: 2,
-      marque: 'Peugeot',
-      modele: '308',
-      annee: 2020,
-      immatriculation: 'EF-456-GH',
-      dernierEntretien: new Date('2024-01-25'),
-      statut: 'entretien'
-    },
-    {
-      id: 3,
-      marque: 'Citroën',
-      modele: 'C4',
-      annee: 2016,
-      immatriculation: 'IJ-789-KL',
-      dernierEntretien: new Date('2023-08-05'),
-      statut: 'réparation'
-    },
-    {
-      id: 4,
-      marque: 'Volkswagen',
-      modele: 'Golf',
-      annee: 2019,
-      immatriculation: 'MN-012-OP',
-      dernierEntretien: new Date('2023-12-18'),
-      statut: 'actif'
+      _id: '2',
+      userId: '1',
+      make: 'Peugeot',
+      model: '308',
+      year: 2020,
+      licensePlate: 'EF-456-GH',
+      technicalDetails: {
+        mileage: 45000,
+        fuelType: 'Diesel',
+        lastMaintenanceDate: new Date('2024-01-25')
+      },
+      maintenanceHistory: []
     }
   ];
 
+  // Editable vehicle for dialog
   editedVehicle: Vehicle = this.initializeVehicle();
   vehicleDialogVisible: boolean = false;
 
   constructor(private messageService: MessageService) {}
 
   ngOnInit(): void {
-    // Ici, vous pourriez charger les données réelles du client et de ses véhicules
-    // depuis un service backend
+    // Here you would typically load real user and vehicle data from a service
   }
 
   initializeVehicle(): Vehicle {
     return {
-      id: 0,
-      marque: '',
-      modele: '',
-      annee: new Date().getFullYear(),
-      immatriculation: '',
-      dernierEntretien: new Date(),
-      statut: 'actif'
+      userId: this.user._id || '',
+      make: '',
+      model: '',
+      year: new Date().getFullYear(),
+      licensePlate: '',
+      technicalDetails: {
+        mileage: 0,
+        fuelType: '',
+        lastMaintenanceDate: undefined
+      },
+      maintenanceHistory: []
     };
+  }
+
+  getVehicleStatus(vehicle: Vehicle): string {
+    // Simple logic to determine vehicle status
+    const now = new Date();
+    const lastMaintenance = vehicle.technicalDetails.lastMaintenanceDate;
+
+    if (!lastMaintenance) return 'maintenance';
+
+    const monthsSinceLastMaintenance = (now.getFullYear() - lastMaintenance.getFullYear()) * 12 +
+      (now.getMonth() - lastMaintenance.getMonth());
+
+    return monthsSinceLastMaintenance > 6 ? 'entretien' : 'actif';
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
     switch (status) {
       case 'actif': return 'success';
-      case 'entretien': return 'info';
-      case 'réparation': return 'warn';
-      default: return 'info';
+      case 'entretien': return 'warn';
+      case 'maintenance': return 'info';
+      default: return 'secondary';
     }
   }
 
@@ -452,15 +463,19 @@ export class ClientProfile implements OnInit {
   }
 
   showEditProfileDialog(): void {
-    this.editedClient = {...this.client};
+    this.editedUser = JSON.parse(JSON.stringify(this.user));
     this.editProfileVisible = true;
   }
 
   saveProfile(): void {
-    // Ici, vous devriez appeler un service pour sauvegarder les changements
-    this.client = {...this.editedClient};
+    // In a real app, this would call a user service to update the profile
+    this.user = JSON.parse(JSON.stringify(this.editedUser));
     this.editProfileVisible = false;
-    this.messageService.add({severity: 'success', summary: 'Succès', detail: 'Profil mis à jour'});
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Succès',
+      detail: 'Profil mis à jour'
+    });
   }
 
   showAddVehicleDialog(): void {
@@ -469,43 +484,51 @@ export class ClientProfile implements OnInit {
   }
 
   editVehicle(vehicle: Vehicle): void {
-    this.editedVehicle = {...vehicle};
+    this.editedVehicle = JSON.parse(JSON.stringify(vehicle));
     this.vehicleDialogVisible = true;
   }
 
   saveVehicle(): void {
-    // Ici, vous devriez appeler un service pour sauvegarder les changements
-    if (this.editedVehicle.id) {
-      // Mise à jour d'un véhicule existant
-      const index = this.vehicles.findIndex(v => v.id === this.editedVehicle.id);
+    // In a real app, this would call a vehicle service to save/update
+    if (this.editedVehicle._id) {
+      // Update existing vehicle
+      const index = this.vehicles.findIndex(v => v._id === this.editedVehicle._id);
       if (index !== -1) {
-        this.vehicles[index] = {...this.editedVehicle};
+        this.vehicles[index] = JSON.parse(JSON.stringify(this.editedVehicle));
       }
-      this.messageService.add({severity: 'success', summary: 'Succès', detail: 'Véhicule mis à jour'});
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: 'Véhicule mis à jour'
+      });
     } else {
-      // Ajout d'un nouveau véhicule
-      const newVehicle = {...this.editedVehicle};
-      newVehicle.id = this.getNextVehicleId();
-      newVehicle.dernierEntretien = new Date();
+      // Add new vehicle
+      const newVehicle = JSON.parse(JSON.stringify(this.editedVehicle));
+      newVehicle._id = (this.vehicles.length + 1).toString();
+      newVehicle.technicalDetails.lastMaintenanceDate = new Date();
       this.vehicles.push(newVehicle);
-      this.messageService.add({severity: 'success', summary: 'Succès', detail: 'Véhicule ajouté'});
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: 'Véhicule ajouté'
+      });
     }
 
     this.vehicleDialogVisible = false;
   }
 
-  getNextVehicleId(): number {
-    return Math.max(0, ...this.vehicles.map(v => v.id)) + 1;
-  }
-
   deleteVehicle(vehicle: Vehicle): void {
-    // Ici, vous devriez ajouter une confirmation de suppression
-    this.vehicles = this.vehicles.filter(v => v.id !== vehicle.id);
-    this.messageService.add({severity: 'info', summary: 'Information', detail: 'Véhicule supprimé'});
+    // In a real app, this would call a vehicle service to delete
+    this.vehicles = this.vehicles.filter(v => v._id !== vehicle._id);
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Information',
+      detail: 'Véhicule supprimé'
+    });
   }
 
   scheduleService(vehicle: Vehicle): void {
-    // Implémentation à venir pour planifier un entretien
+    // Functionality to be implemented for scheduling maintenance
     this.messageService.add({
       severity: 'info',
       summary: 'Fonctionnalité à venir',

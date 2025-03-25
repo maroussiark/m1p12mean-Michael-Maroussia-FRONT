@@ -14,7 +14,7 @@ export interface UserProfile {
 export interface User {
     _id?: string;
     email: string;
-    password?: string; // Ne devrait être présent que pour les requêtes POST
+    password?: string;
     role: UserRole;
     profile?: UserProfile;
     specialties?: string[];
