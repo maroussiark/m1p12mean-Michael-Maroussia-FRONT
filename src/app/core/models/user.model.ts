@@ -18,7 +18,6 @@ export interface User {
     role: UserRole;
     profile?: UserProfile;
     specialties?: string[];
-    hourlyRate?: number;
     createdAt?: Date;
     lastLogin?: Date;
     isActive?: boolean;
