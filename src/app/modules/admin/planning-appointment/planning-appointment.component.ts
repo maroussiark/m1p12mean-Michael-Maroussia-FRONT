@@ -478,7 +478,10 @@ export class PlanningAppointmentComponent implements OnInit {
 
     editAppointment(appointment: Appointment) {
         this.selectedAppointment = { ...appointment };
-        this.appointmentForm.patchValue(this.selectedAppointment);
+        this.appointmentForm.patchValue({
+            ...appointment,
+            services: appointment.services.map(s => s.serviceType) // uniquement les _id
+          });
         this.appointmentDialog = true;
     }
 

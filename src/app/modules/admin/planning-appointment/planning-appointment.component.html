@@ -20,9 +20,33 @@
 
     <!-- Calendrier -->
     <div *ngIf="view === 'calendar'" class="bg-white rounded-lg shadow-md p-4">
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-gray-400 inline-block"></span>
+              <span class="text-sm text-gray-700">Planifié</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+              <span class="text-sm text-gray-700">Validé</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+              <span class="text-sm text-gray-700">En cours</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+              <span class="text-sm text-gray-700">Terminé</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+              <span class="text-sm text-gray-700">Annulé</span>
+            </div>
+          </div>
+
       <full-calendar
         [options]="calendarOptions">
       </full-calendar>
+
     </div>
 
     <!-- Liste des rendez-vous -->
@@ -218,7 +242,12 @@
                 optionValue="value"
                 class="w-full p-inputtext-sm">
                 </p-select>
-
+                <ng-template pTemplate="selectedItem" let-status>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          [ngClass]="getStatusChipClass(status)">
+                      {{ formatStatusLabel(status) }}
+                    </span>
+                  </ng-template>
           </div>
 
           <div class="field col-span-full">
