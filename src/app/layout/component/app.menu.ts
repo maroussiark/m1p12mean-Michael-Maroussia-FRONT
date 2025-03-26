@@ -39,7 +39,8 @@ export class AppMenu {
                 label: 'Admin Dashboard',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin'] },
-                    { label: 'Users', icon: 'pi pi-fw pi-users', routerLink: ['/admin/user-management'] },
+                    { label: 'Utilisateur', icon: 'pi pi-fw pi-users', routerLink: ['/admin/user-management'] },
+                    { label: 'Rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/planning-management'] },
                     { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/settings'] }
                 ]
             },
