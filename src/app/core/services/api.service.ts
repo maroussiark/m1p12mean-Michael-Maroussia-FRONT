@@ -6,6 +6,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
+//   private baseUrl = 'https://m1p12mean-michael-maroussia-back.onrender.com/api';
+  private baseUrl = 'http://localhost:5000/api';
+
 
   constructor(private http: HttpClient) { }
 
