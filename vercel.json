@@ -3,6 +3,10 @@
         {
             "source": "/:path*",
             "destination": "/index.html"
+        },
+        {
+            "source": "/api/(.*)",
+            "destination": "https://m1p12mean-michael-maroussia-back.onrender.com/api/$1"
         }
     ],
     "trailingSlash": false

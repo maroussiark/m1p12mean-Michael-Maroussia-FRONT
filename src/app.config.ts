@@ -7,6 +7,7 @@ import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { MessageService } from 'primeng/api';
 import { TokenInterceptor } from './app/core/interceptors/token.interceptor';
+import { LoadingInterceptor } from './app/core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -15,6 +16,11 @@ export const appConfig: ApplicationConfig = {
         provideAnimationsAsync(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
         { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: LoadingInterceptor,
+            multi: true
+        },
         MessageService
     ]
 };

@@ -3,6 +3,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { ApiService } from './api.service';
+import { LoadingService } from './loading.service';
 
 
 @Injectable({
@@ -14,7 +15,8 @@ export class AuthService {
   private _isSignUp$ = new BehaviorSubject<boolean>(false);
   public isSignUp$ = this._isSignUp$.asObservable();
 
-  constructor(private apiService: ApiService) {
+  constructor(private apiService: ApiService,private loadingService: LoadingService
+  ) {
     const userFromStorage = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<User | null>(
       userFromStorage ? JSON.parse(userFromStorage) : null
@@ -37,12 +39,28 @@ export class AuthService {
   }
 
   logout(): void {
+    this.loadingService.show();
     // Supprimer l'utilisateur et le token du localStorage
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
+    this.loadingService.hide();
   }
 
   setSignUp(isSignUp: boolean): void {
     this._isSignUp$.next(isSignUp);
+  }
+
+  register(user: User): Observable<any> {
+    return this.apiService.post(`/auth/register`, {
+      email: user.email,
+      password: user.password,
+      role: user.role,
+      profile: {
+        firstName: user.profile?.firstName,
+        lastName: user.profile?.lastName,
+        phoneNumber: user.profile?.phoneNumber
+      },
+
+    });
   }
 }
