@@ -1,0 +1,61 @@
+<!-- notifications.component.html -->
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Mes Notifications</h1>
+
+    <p-table
+      [value]="notifications"
+      [columns]="cols"
+      [tableStyle]="{'width': '100%'}"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage {first} à {last} sur {totalRecords} notifications"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      emptyMessage="Aucune notification"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-notification let-columns="columns">
+        <tr>
+          <!-- Colonne Type -->
+          <td>
+            <p-badge
+              [value]="notification.type"
+              [styleClass]="getNotificationTypeClass(notification.type)"
+            ></p-badge>
+          </td>
+
+          <!-- Colonne Message -->
+          <td>{{ notification.message }}</td>
+
+          <!-- Colonne Statut -->
+          <td>
+            <span
+              [ngClass]="{
+                'text-red-500 font-bold': !notification.isRead,
+                'text-gray-500': notification.isRead
+              }"
+            >
+              {{ notification.isRead ? 'Lu' : 'Non lu' }}
+            </span>
+          </td>
+
+          <!-- Colonne Actions -->
+          <td>
+            <p-button
+              label="Marquer comme lu"
+              styleClass="p-button-secondary p-button-sm"
+              [disabled]="notification.isRead"
+              (onClick)="markAsRead(notification)"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>

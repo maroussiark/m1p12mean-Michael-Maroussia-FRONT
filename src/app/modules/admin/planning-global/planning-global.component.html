@@ -1,0 +1,192 @@
+<div class="p-grid">
+    <div class="p-col-12">
+        <p-card styleClass="mb-2">
+            <div class="p-d-flex p-jc-between p-ai-center mb-3">
+                <h2>Planning Global de l'Atelier</h2>
+
+            </div>
+
+            <full-calendar [options]="options" [events]="events"></full-calendar>
+        </p-card>
+    </div>
+
+    <p-dialog header="Gestion d'événement" [(visible)]="dialogVisible" [style]="{width: '80vw'}" [modal]="true" [closable]="true" (onHide)="fermerDialog()">
+        <p-tabs  [value]="nouveauTypeEvenement === 'appointment' ? 0 : (nouveauTypeEvenement === 'absence' ? 1 : 2)">>
+            <p-tablist>
+                <p-tab [value]="0">Rendez-vous</p-tab>
+                <p-tab [value]="1">Absence</p-tab>
+                <p-tab [value]="2">Plage Spéciale</p-tab>
+            </p-tablist>
+            <!-- Onglet Rendez-vous -->
+            <p-tabpanels>
+                <p-tabpanel [value]="0">
+                    <div class="p-grid p-fluid">
+                        <div class="p-col-12 p-md-6">
+                            <h3>Informations client et véhicule</h3>
+                            <div class="mb-4">
+                                <label class="mr-4" for="clientName">Nom du client</label>
+                                <input id="clientName" type="text" pInputText [(ngModel)]="nouvelAppointment.clientName">
+                            </div>
+                            <div class="p-field gap-2 mb-3">
+                                <label class="mr-4" for="clientPhone">Téléphone</label>
+                                <input id="clientPhone" type="text" pInputText [(ngModel)]="nouvelAppointment.clientPhone">
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="vehicleModel">Modèle du véhicule</label>
+                                <input id="vehicleModel" type="text" pInputText [(ngModel)]="nouvelAppointment.vehicleModel">
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="vehiclePlate">Immatriculation</label>
+                                <input id="vehiclePlate" type="text" pInputText [(ngModel)]="nouvelAppointment.vehiclePlate">
+                            </div>
+                        </div>
+
+                        <div class="p-col-12 p-md-6">
+                            <h3>Détails du rendez-vous</h3>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="appointmentDate">Date et heure</label>
+                                <p-calendar id="appointmentDate" [(ngModel)]="nouvelAppointment.appointmentDate"
+                                    [showTime]="true" [showIcon]="true" [timeOnly]="false" [showSeconds]="false">
+                                </p-calendar>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="duration">Durée (minutes)</label>
+                                <p-inputNumber id="duration" [(ngModel)]="nouvelAppointment.duration" [min]="15" [max]="480" [step]="15"></p-inputNumber>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="status">Statut</label>
+                                <p-dropdown id="status" [options]="statutOptions" [(ngModel)]="nouvelAppointment.status"
+                                    optionLabel="label" optionValue="value" [filter]="true" [showClear]="true">
+                                </p-dropdown>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="services">Types de services</label>
+                                <p-multiSelect id="services" [options]="typeServicesOptions" [(ngModel)]="nouvelAppointment.serviceTypes"
+                                    optionLabel="label" optionValue="value" [filter]="true">
+                                </p-multiSelect>
+                            </div>
+                        </div>
+
+                        <div class="p-col-12">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="mecaniciensAssignes">Mécaniciens assignés</label>
+                                <p-multiSelect id="mecaniciensAssignes" [options]="mecaniciens" [(ngModel)]="nouvelAppointment.mechanicIds"
+                                    optionLabel="prenom + ' ' + nom" optionValue="id" [filter]="true"
+                                    placeholder="Sélectionnez un ou plusieurs mécaniciens">
+                                    <ng-template let-mecanicien pTemplate="item">
+                                        <div class="p-d-flex p-ai-center">
+                                            <span class="mr-2">{{mecanicien.prenom}} {{mecanicien.nom}}</span>
+                                            <span class="p-badge p-badge-info">{{mecanicien.specialite}}</span>
+                                        </div>
+                                    </ng-template>
+                                </p-multiSelect>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="notes">Notes</label>
+                                <textarea id="notes" pInputText [(ngModel)]="nouvelAppointment.notes" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </p-tabpanel>
+
+                <!-- Onglet Absence -->
+                <p-tabpanel [value]="1">
+                    <div class="p-grid p-fluid">
+                        <div class="p-col-12 p-md-6">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="mecanicienAbsence">Mécanicien</label>
+                                <p-dropdown id="mecanicienAbsence" [options]="mecaniciens" [(ngModel)]="nouvelleAbsence.mecanicienId"
+                                    optionLabel="prenom + ' ' + nom" optionValue="id" [filter]="true" [showClear]="true">
+                                </p-dropdown>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="motifAbsence">Motif</label>
+                                <p-dropdown id="motifAbsence" [options]="[
+                                    {label: 'Congé', value: 'congé'},
+                                    {label: 'Maladie', value: 'maladie'},
+                                    {label: 'Formation', value: 'formation'},
+                                    {label: 'Autre', value: 'autre'}
+                                ]" [(ngModel)]="nouvelleAbsence.motif" optionLabel="label" optionValue="value">
+                                </p-dropdown>
+                            </div>
+                        </div>
+
+                        <div class="p-col-12 p-md-6">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="dateDebutAbsence">Date de début</label>
+                                <p-calendar id="dateDebutAbsence" [(ngModel)]="nouvelleAbsence.dateDebut"
+                                    [showTime]="true" [showIcon]="true">
+                                </p-calendar>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="dateFinAbsence">Date de fin</label>
+                                <p-calendar id="dateFinAbsence" [(ngModel)]="nouvelleAbsence.dateFin"
+                                    [showTime]="true" [showIcon]="true" [minDate]="nouvelleAbsence.dateDebut">
+                                </p-calendar>
+                            </div>
+                        </div>
+
+                        <div class="p-col-12">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="descriptionAbsence">Description</label>
+                                <textarea id="descriptionAbsence" pInputText [(ngModel)]="nouvelleAbsence.description" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </p-tabpanel>
+
+                <!-- Onglet Plage Spéciale -->
+                <p-tabpanel [value]="2">
+                    <div class="p-grid p-fluid">
+                        <div class="p-col-12 p-md-6">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="titrePlage">Titre</label>
+                                <input id="titrePlage" type="text" pInputText [(ngModel)]="nouvellePlageSpeciale.titre">
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="couleurPlage">Couleur</label>
+                                <p-colorPicker id="couleurPlage" [(ngModel)]="nouvellePlageSpeciale.couleur" [inline]="false"></p-colorPicker>
+                            </div>
+                        </div>
+
+                        <div class="p-col-12 p-md-6">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="dateDebutPlage">Date de début</label>
+                                <p-calendar id="dateDebutPlage" [(ngModel)]="nouvellePlageSpeciale.dateDebut"
+                                    [showTime]="true" [showIcon]="true">
+                                </p-calendar>
+                            </div>
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="dateFinPlage">Date de fin</label>
+                                <p-calendar id="dateFinPlage" [(ngModel)]="nouvellePlageSpeciale.dateFin"
+                                    [showTime]="true" [showIcon]="true" [minDate]="nouvellePlageSpeciale.dateDebut">
+                                </p-calendar>
+                            </div>
+                        </div>
+
+                        <div class="p-col-12">
+                            <div class="p-field mb-3">
+                                <label class="mr-4" for="descriptionPlage">Description</label>
+                                <textarea id="descriptionPlage" pInputText [(ngModel)]="nouvellePlageSpeciale.description" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+
+        <ng-template pTemplate="footer">
+            <div class="p-d-flex p-jc-between">
+                <div>
+                    <button pButton *ngIf="selectedEvent" label="Supprimer" icon="pi pi-trash" class="p-button-danger" (click)="supprimerEvenement()"></button>
+                </div>
+                <div>
+                    <button pButton label="Annuler" icon="pi pi-times" class="p-button-text" (click)="fermerDialog()"></button>
+                    <button pButton label="Enregistrer" icon="pi pi-check" class="p-button-primary" (click)="sauvegarderEvenement()"></button>
+                </div>
+            </div>
+        </ng-template>
+    </p-dialog>
+
+    <p-toast></p-toast>
+</div>

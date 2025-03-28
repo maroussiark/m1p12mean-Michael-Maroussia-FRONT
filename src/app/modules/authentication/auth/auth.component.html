@@ -1,0 +1,49 @@
+
+<body>
+    <p-toast position="bottom-center"></p-toast>
+
+    <div class="container" [ngClass]="containerClass">
+        <div class="form-container sign-up-container">
+            <form>
+                <h1>Créer un compte</h1>
+                <input type="text" placeholder="Name" />
+                <input type="email" placeholder="Email" />
+                <input type="password" placeholder="Password" />
+                <button type="button">S'inscrire</button>
+                <div class="mobile-toggle">
+                    <span>Déjà un compte ?</span>
+                    <p-button [rounded]="true" variant="text"  severity="info"  (click)="onSignIn()">Se connecter</p-button>
+                  </div>
+            </form>
+        </div>
+
+        <div class="form-container sign-in-container">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmitLogin()">
+                <h1>Se connecter</h1>
+                <input type="email" placeholder="Email" formControlName="email" />
+                <input type="password" placeholder="Password" formControlName="password" />
+                <button pButton type="submit">Se Connecter</button>
+                <div class="mobile-toggle mr-1">
+                    <span>Pas encore de compte ?</span>
+                    <p-button  [rounded]="true" variant="text" (click)="onSignUp()" >S'inscrire</p-button>
+                </div>
+            </form>
+        </div>
+
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Bienvenue chez Auto-Pro !</h1>
+                    <h6>Redémarrez votre expérience ! Connectez-vous pour reprendre la route.</h6>
+                    <button class="ghost" (click)="onSignIn()">Se connecter</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Garage Auto-Pro</h1>
+                    <h6>Mettez les gaz et rejoignez-nous ! Inscrivez-vous pour démarrer l'aventure.</h6>
+                    <button class="ghost" (click)="onSignUp()">S'inscrire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>

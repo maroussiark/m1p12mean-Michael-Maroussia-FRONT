@@ -1,0 +1,285 @@
+
+<div class="container mx-auto p-4">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">Gestion des Rendez-vous</h1>
+
+      <div class="flex flex-col sm:flex-row gap-2">
+        <p-button
+          icon="pi pi-plus"
+          label="Nouveau"
+          (onClick)="openNew()"
+          styleClass="p-button-success"></p-button>
+
+        <p-button
+          [icon]="view === 'calendar' ? 'pi pi-list' : 'pi pi-calendar'"
+          [label]="view === 'calendar' ? 'Vue Liste' : 'Vue Calendrier'"
+          (onClick)="toggleView()"
+          styleClass="p-button-secondary"></p-button>
+      </div>
+    </div>
+
+    <!-- Calendrier -->
+    <div *ngIf="view === 'calendar'" class="bg-white rounded-lg shadow-md p-4">
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-gray-400 inline-block"></span>
+              <span class="text-sm text-gray-700">Planifié</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+              <span class="text-sm text-gray-700">Validé</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+              <span class="text-sm text-gray-700">En cours</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+              <span class="text-sm text-gray-700">Terminé</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+              <span class="text-sm text-gray-700">Annulé</span>
+            </div>
+          </div>
+
+      <full-calendar
+        [options]="calendarOptions">
+      </full-calendar>
+
+    </div>
+
+    <!-- Liste des rendez-vous -->
+    <div *ngIf="view === 'list'" class="bg-white rounded-lg shadow-md">
+      <p-table
+        [value]="appointments"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,25]"
+        [globalFilterFields]="['clientId','vehicleId','status']"
+        responsiveLayout="stack"
+        styleClass="p-datatable-sm">
+
+        <ng-template pTemplate="caption">
+          <div class="flex justify-between items-center p-2">
+            <h5 class="m-0">Liste des Rendez-vous</h5>
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="onGlobalFilter($event)"
+                placeholder="Rechercher..."
+                class="p-inputtext-sm" />
+            </span>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Véhicule</th>
+            <th>Services</th>
+            <th>Mécaniciens</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-appointment>
+          <tr>
+            <td>
+              {{appointment.startTime | date:'dd/MM/yyyy HH:mm'}}
+              <div class="text-xs text-gray-500">
+                Durée: {{calculateTotalDuration(appointment)}} min
+              </div>
+            </td>
+            <td>
+              <div class="font-medium">{{getClientName(appointment.clientId)}}</div>
+            </td>
+            <td>
+              <div>{{getVehicleDetails(appointment.vehicleId)}}</div>
+            </td>
+            <td>
+              <div class="flex flex-wrap gap-1">
+                <span *ngFor="let service of appointment.services"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {{getServiceName(service.serviceType)}}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-wrap gap-1">
+                <span *ngFor="let mechId of appointment.mechanics"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <i class="pi pi-user mr-1"></i>
+                  {{getMechanicName(mechId)}}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    [ngClass]="getStatusChipClass(appointment.status)">
+                {{appointment.status}}
+              </span>
+            </td>
+            <td>
+              <div class="flex">
+                <button pButton pRipple icon="pi pi-pencil"
+                  class="p-button-rounded p-button-success mr-2 p-button-sm"
+                  (click)="editAppointment(appointment)"></button>
+                <button pButton pRipple icon="pi pi-trash"
+                  class="p-button-rounded p-button-danger p-button-sm"
+                  (click)="deleteAppointment(appointment)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7">Aucun rendez-vous trouvé.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Dialog pour ajouter/modifier un rendez-vous -->
+    <p-dialog
+      [(visible)]="appointmentDialog"
+      [style]="{width: '90%', maxWidth: '700px'}"
+      [header]="selectedAppointment ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous'"
+      [modal]="true"
+      styleClass="p-fluid">
+
+      <form [formGroup]="appointmentForm" class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field col-span-1">
+            <label for="clientId" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+            <p-dropdown
+              inputId="clientId"
+              formControlName="clientId"
+              [options]="[]"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Sélectionner un client"
+              styleClass="w-full p-inputtext-sm">
+            </p-dropdown>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="vehicleId" class="block text-sm font-medium text-gray-700 mb-1">Véhicule</label>
+            <p-dropdown
+              inputId="vehicleId"
+              formControlName="vehicleId"
+              [options]="vehicles"
+              optionLabel="licensePlate"
+              optionValue="_id"
+              placeholder="Sélectionner un véhicule"
+              styleClass="w-full p-inputtext-sm">
+              <ng-template pTemplate="item" let-vehicle>
+                {{vehicle.make}} {{vehicle.model}} ({{vehicle.licensePlate}})
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="field col-span-full">
+            <label for="services" class="block text-sm font-medium text-gray-700 mb-1">Services</label>
+            <p-multiSelect
+              inputId="services"
+              formControlName="services"
+              [options]="serviceTypes"
+              optionLabel="name"
+              optionValue="_id"
+              placeholder="Sélectionner les services"
+              styleClass="w-full p-inputtext-sm">
+            </p-multiSelect>
+            <ng-template let-serviceId pTemplate="selectedItem">
+                {{ getServiceNameById(serviceId) }}
+              </ng-template>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">Date et heure</label>
+            <p-calendar
+              inputId="startTime"
+              formControlName="startTime"
+              [showTime]="true"
+              [hourFormat]="'24'"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              styleClass="w-full p-inputtext-sm">
+            </p-calendar>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="mechanics" class="block text-sm font-medium text-gray-700 mb-1">Mécaniciens</label>
+            <p-multiSelect
+              inputId="mechanics"
+              formControlName="mechanics"
+              [options]="mechanics"
+              optionLabel="profile.lastName"
+              optionValue="_id"
+              placeholder="Sélectionner les mécaniciens"
+              styleClass="w-full p-inputtext-sm">
+              <ng-template pTemplate="item" let-mechanic>
+                <i class="pi pi-user mr-1 text-secondary"></i>
+                {{mechanic.profile.firstName}} {{mechanic.profile.lastName}}
+                ({{mechanic.specialties.join(', ')}})
+              </ng-template>
+            </p-multiSelect>
+          </div>
+
+          <div class="field col-span-1">
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+            <p-select
+                inputId="status"
+                formControlName="status"
+                [options]="statusOptions"
+                placeholder="Sélectionner un statut"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full p-inputtext-sm">
+                </p-select>
+                <ng-template pTemplate="selectedItem" let-status>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          [ngClass]="getStatusChipClass(status)">
+                      {{ formatStatusLabel(status) }}
+                    </span>
+                  </ng-template>
+          </div>
+
+          <div class="field col-span-full">
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea
+              pInputTextarea
+              id="notes"
+              formControlName="notes"
+              rows="3"
+              class="w-full resize-none p-inputtext-sm border-2 rounded-md">
+            </textarea>
+          </div>
+        </div>
+      </form>
+
+      <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+          <p-button
+            label="Annuler"
+            icon="pi pi-times"
+            styleClass="p-button-text"
+            (onClick)="hideDialog()"></p-button>
+          <p-button
+            label="Enregistrer"
+            icon="pi pi-check"
+            styleClass="p-button-primary"
+            (onClick)="saveAppointment()"></p-button>
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Toast pour les messages -->
+    <p-toast></p-toast>
+  </div>
+```
