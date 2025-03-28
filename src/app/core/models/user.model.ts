@@ -1,6 +1,6 @@
 // user.model.ts
 export enum UserRole {
-    CLIENT = 'client',
+    USER = 'user',
     MECHANIC = 'mechanic',
     ADMIN = 'admin'
 }

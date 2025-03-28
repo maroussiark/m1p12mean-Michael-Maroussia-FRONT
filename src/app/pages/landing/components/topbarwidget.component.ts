@@ -106,12 +106,13 @@ export class TopbarWidget implements OnInit {
     }
 
     setSignIn(): void {
-        this.authService.setSignUp(false);
         this.router.navigate(['/auth']);
     }
 
     logout(): void {
-        this.authService.logout();
+        setTimeout(() => {
+            this.authService.logout();
+        }, 1500);
         this.router.navigate(['/auth']);
         this.messageService.add({
             severity: 'warn',

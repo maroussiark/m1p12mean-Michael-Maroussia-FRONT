@@ -11,13 +11,14 @@ import { ButtonModule } from 'primeng/button';
 
 
 @NgModule({
-  declarations: [LoginBoComponent,AuthComponent],
+  declarations: [LoginBoComponent],
   imports: [
     CommonModule,
     AuthRoutingModule,
     ReactiveFormsModule,
     ToastModule,
-    ButtonModule
+    ButtonModule,
+    AuthComponent
   ],
   providers: [MessageService],
   exports: [AuthComponent]
