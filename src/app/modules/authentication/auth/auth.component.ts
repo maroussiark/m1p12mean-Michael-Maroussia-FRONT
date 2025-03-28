@@ -26,8 +26,8 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required]],
-      password: ['', Validators.required],
+      email: ['jean@test.com', [Validators.required]],
+      password: ['qwerty', Validators.required],
     });
     this.subscription = this.authService.isSignUp$.subscribe((isSignUp) => {
       this.containerClass = isSignUp ? 'right-panel-active' : '';
