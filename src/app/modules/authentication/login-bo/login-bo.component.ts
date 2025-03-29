@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-bo',
@@ -16,15 +16,15 @@ export class LoginBoComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private route: ActivatedRoute
+        private router: Router,
+
   ) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required]],
-      password: ['', Validators.required]
+      email: ['admin', [Validators.required]],
+      password: ['admin', Validators.required]
     });
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/client/dashboard';
   }
 
   onSubmit(): void {
@@ -34,6 +34,7 @@ export class LoginBoComponent {
       this.authService.login(email, password).subscribe(
         user => {
           console.log('Staff connecté', user);
+          this.router.navigate([`/${user.role}`]);
           // Rediriger vers l'URL de retour ou le dashboard
           // this.router.navigateByUrl(this.returnUrl);
         },
