@@ -7,6 +7,7 @@ import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { MessageService } from 'primeng/api';
 import { tokenInterceptor } from './app/core/interceptors/token.interceptor';
+import { LoadingInterceptor } from './app/core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -15,10 +16,14 @@ export const appConfig: ApplicationConfig = {
           withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
           withEnabledBlockingInitialNavigation()
         ),
-        // Utilisation de provideHttpClient sans withInterceptors
         provideHttpClient(withInterceptors([tokenInterceptor])),
         provideAnimationsAsync(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: LoadingInterceptor,
+            multi: true
+        },
         MessageService
     ]
 };

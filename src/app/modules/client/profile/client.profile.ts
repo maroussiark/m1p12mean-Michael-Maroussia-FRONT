@@ -364,7 +364,7 @@ export class ClientProfileComponent implements OnInit {
   user: User = {
     _id: '1',
     email: 'jean.dupont@example.com',
-    role: UserRole.CLIENT,
+    role: UserRole.USER,
     profile: {
       firstName: 'Jean',
       lastName: 'Dupont',
