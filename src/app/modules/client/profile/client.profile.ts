@@ -15,6 +15,8 @@ import { SelectModule } from 'primeng/select';
 // Import the new models
 import { User, UserRole } from '../../../core/models/user.model';
 import { Vehicle } from '../../../core/models/vehicle.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { VehicleService } from '../../../core/services/vehicle.service';
 
 @Component({
   selector: 'app-client-profile',
@@ -414,10 +416,18 @@ export class ClientProfileComponent implements OnInit {
   editedVehicle: Vehicle = this.initializeVehicle();
   vehicleDialogVisible: boolean = false;
 
-  constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService, private authService : AuthService,private vehicleService:VehicleService) {}
 
   ngOnInit(): void {
     // Here you would typically load real user and vehicle data from a service
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser !== null) {
+      this.user = currentUser;
+    }
+    this.vehicleService.getVehiclesByUser().subscribe(vehicles => {
+      this.vehicles = vehicles;
+    });
+
   }
 
   initializeVehicle(): Vehicle {
@@ -437,17 +447,25 @@ export class ClientProfileComponent implements OnInit {
   }
 
   getVehicleStatus(vehicle: Vehicle): string {
-    // Simple logic to determine vehicle status
     const now = new Date();
     const lastMaintenance = vehicle.technicalDetails.lastMaintenanceDate;
 
     if (!lastMaintenance) return 'maintenance';
 
-    const monthsSinceLastMaintenance = (now.getFullYear() - lastMaintenance.getFullYear()) * 12 +
-      (now.getMonth() - lastMaintenance.getMonth());
+    // Convertir la date en objet Date si c'est une chaîne
+    const lastMaintenanceDate = new Date(lastMaintenance);
+
+    if (isNaN(lastMaintenanceDate.getTime())) {
+      console.error('❌ Erreur : lastMaintenanceDate est invalide', lastMaintenance);
+      return 'inconnu';
+    }
+
+    const monthsSinceLastMaintenance = (now.getFullYear() - lastMaintenanceDate.getFullYear()) * 12 +
+      (now.getMonth() - lastMaintenanceDate.getMonth());
 
     return monthsSinceLastMaintenance > 6 ? 'entretien' : 'actif';
-  }
+}
+
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
     switch (status) {
@@ -496,22 +514,38 @@ export class ClientProfileComponent implements OnInit {
       if (index !== -1) {
         this.vehicles[index] = JSON.parse(JSON.stringify(this.editedVehicle));
       }
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Succès',
-        detail: 'Véhicule mis à jour'
-      });
+    console.log("Updating ..",this.editedVehicle._id);
+    this.vehicleService.updateVehicle(this.editedVehicle._id, this.editedVehicle).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Véhicule modifié avec succès.' });
+        },
+        error: (err) => {
+            console.error('Erreur lors de la mise à jour :', err);
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err });
+        }
+
+    });
+
     } else {
       // Add new vehicle
       const newVehicle = JSON.parse(JSON.stringify(this.editedVehicle));
-      newVehicle._id = (this.vehicles.length + 1).toString();
       newVehicle.technicalDetails.lastMaintenanceDate = new Date();
-      this.vehicles.push(newVehicle);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Succès',
-        detail: 'Véhicule ajouté'
-      });
+
+      this.vehicleService.createVehicle(newVehicle).subscribe({
+          next: (newVehicle) => {
+              this.vehicles.push(newVehicle);
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Succès',
+                detail: 'Véhicule ajouté'
+              });
+        },
+        error: (err) => {
+            console.error('Erreur lors de la mise à jour :', err);
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err });
+        }
+    });
+
     }
 
     this.vehicleDialogVisible = false;

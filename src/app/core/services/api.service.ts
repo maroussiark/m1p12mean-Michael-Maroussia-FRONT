@@ -8,7 +8,9 @@ import { LoadingService } from './loading.service';
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://m1p12mean-michael-maroussia-back.onrender.com/api';
+
+//   private baseUrl = 'https://m1p12mean-michael-maroussia-back.onrender.com/api';
+  private baseUrl = 'http://localhost:5000/api';
 
   constructor(
     private http: HttpClient,
