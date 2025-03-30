@@ -19,6 +19,9 @@ import { Vehicle, ServiceType, Appointment, AppointmentStatus, AppointmentServic
 // Si vous avez aussi l'interface Invoice et InvoiceStatus définis, importez-les
 import { Invoice, InvoiceStatus,InvoiceItem } from '../../../core/models';
 import { Tooltip, TooltipModule } from 'primeng/tooltip';
+import { ServiceTypeService } from '../../../core/services/service-type.service';
+import { VehicleService } from '../../../core/services/vehicle.service';
+import { AppointmentsService } from '../../../core/services/appointments.service';
 
 @Component({
   selector: 'app-appointment-booking',
@@ -604,7 +607,11 @@ export class AppointmentBookingComponent implements OnInit {
   afficherFacture = false;
   factureSelectionnee: Invoice | null = null;
 
-  constructor(private fb: FormBuilder, private messageService: MessageService) {
+  constructor(private fb: FormBuilder,
+    private messageService: MessageService,
+    private serviceTypeService: ServiceTypeService,
+    private vehicleService: VehicleService,
+    private appointmentsService: AppointmentsService) {
     this.appointmentForm = this.fb.group({
       vehicleId: [null, Validators.required],
       selectedServices: [[], Validators.compose([Validators.required, Validators.minLength(1)])],
@@ -616,6 +623,18 @@ export class AppointmentBookingComponent implements OnInit {
 
   ngOnInit() {
     this.prepareDisabledDates();
+    this.serviceTypeService.getAllServiceTypes().subscribe(services => {
+        this.serviceTypes = services;
+    });
+    this.vehicleService.getVehiclesByUser().subscribe(vehicles => {
+        this.vehicles = vehicles;
+    });
+
+    this.appointmentsService.getAppointmentsByUser().subscribe(appointments =>{
+        console.log(appointments);
+        this.appointments = appointments;
+    });
+
   }
 
   prepareDisabledDates() {
