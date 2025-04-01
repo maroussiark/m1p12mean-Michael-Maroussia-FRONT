@@ -20,13 +20,13 @@ export interface PartUsage {
 
 export interface Appointment {
     _id?: string;
-    clientId: string;
-    vehicleId: string;
-    mechanics: string[];
-    startTime: Date;
+    clientId?: string;
+    vehicleId?: string;
+    mechanics?: string[];
+    startTime?: Date;
     endTime?: Date;
     status: AppointmentStatus;
-    services: AppointmentService[];
+    services?: AppointmentService[];
     totalEstimatedCost?: number;
     partsUsed?: PartUsage[];
     notes?: string;

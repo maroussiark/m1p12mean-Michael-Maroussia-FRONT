@@ -14,6 +14,10 @@ export class VehicleService {
   constructor(private http: ApiService) { }
 
 
+  getAllVehicles(): Observable<Vehicle[]> {
+    return this.http.get<Vehicle[]>(`${this.baseUrl}`);
+  }
+
   // 📌 Obtenir tous les véhicules d'un utilisateur
   getVehiclesByUser(): Observable<Vehicle[]> {
     return this.http.get<Vehicle[]>(`${this.baseUrl}/user/`);

@@ -19,6 +19,9 @@ import { Vehicle, ServiceType, Appointment, AppointmentStatus, AppointmentServic
 // Si vous avez aussi l'interface Invoice et InvoiceStatus définis, importez-les
 import { Invoice, InvoiceStatus,InvoiceItem } from '../../../core/models';
 import { Tooltip, TooltipModule } from 'primeng/tooltip';
+import { ServiceTypeService } from '../../../core/services/service-type.service';
+import { VehicleService } from '../../../core/services/vehicle.service';
+import { AppointmentsService } from '../../../core/services/appointments.service';
 
 @Component({
   selector: 'app-appointment-booking',
@@ -353,7 +356,7 @@ import { Tooltip, TooltipModule } from 'primeng/tooltip';
     <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
       <div>
         <h4 class="text-sm font-medium text-gray-500 mb-1">Véhicule</h4>
-        <p class="font-medium text-gray-800">{{ getVehicleDisplay(selectedAppointment.vehicleId) }}</p>
+        <p class="font-medium text-gray-800">{{ getVehicleDisplay(selectedAppointment.vehicleId!) }}</p>
       </div>
       <div>
         <h4 class="text-sm font-medium text-gray-500 mb-1">Services</h4>
@@ -604,7 +607,11 @@ export class AppointmentBookingComponent implements OnInit {
   afficherFacture = false;
   factureSelectionnee: Invoice | null = null;
 
-  constructor(private fb: FormBuilder, private messageService: MessageService) {
+  constructor(private fb: FormBuilder,
+    private messageService: MessageService,
+    private serviceTypeService: ServiceTypeService,
+    private vehicleService: VehicleService,
+    private appointmentsService: AppointmentsService) {
     this.appointmentForm = this.fb.group({
       vehicleId: [null, Validators.required],
       selectedServices: [[], Validators.compose([Validators.required, Validators.minLength(1)])],
@@ -616,6 +623,15 @@ export class AppointmentBookingComponent implements OnInit {
 
   ngOnInit() {
     this.prepareDisabledDates();
+    this.appointmentsService.getAppointmentsByUser().subscribe(appointments =>{
+        this.appointments = appointments;
+    });
+    this.serviceTypeService.getAllServiceTypes().subscribe(services => {
+        this.serviceTypes = services;
+    });
+    this.vehicleService.getVehiclesByUser().subscribe(vehicles => {
+        this.vehicles = vehicles;
+    });
   }
 
   prepareDisabledDates() {
@@ -710,7 +726,15 @@ export class AppointmentBookingComponent implements OnInit {
     this.updateAvailableTimeSlots(date);
   }
 
-  updateAvailableTimeSlots(date: Date) {
+  updateAvailableTimeSlots(date: Date| string) {
+    if (typeof date === 'string') {
+        date = new Date(date); // Convertir la chaîne en Date
+    }
+
+    if (!(date instanceof Date) || isNaN(date.getTime())) { // Vérifier si c'est une date valide
+        console.error("La valeur fournie n'est pas une Date valide :", date);
+        return;
+    }
     const day = date.getDay();
     this.timeSlots.forEach(slot => slot.available = true);
     if (day === 2) {
@@ -752,7 +776,6 @@ export class AppointmentBookingComponent implements OnInit {
       const timeSlot = this.timeSlots.find(slot => slot.id === formValue.timeSlotId);
       const startTime = timeSlot ? this.getStartDateTime(formValue.date, timeSlot.time) : new Date();
       const newAppointment: Appointment = {
-        clientId: 'user1',
         vehicleId: formValue.vehicleId,
         mechanics: [], // À renseigner ultérieurement
         startTime: startTime,
@@ -765,12 +788,19 @@ export class AppointmentBookingComponent implements OnInit {
         totalEstimatedCost: this.calculateTotalPrice(),
         notes: formValue.notes
       };
-      this.appointments.push(newAppointment);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Rendez-vous confirmé',
-        detail: `Votre rendez-vous pour ${selectedServices.length} service(s) a été enregistré pour le ${new Date(formValue.date).toLocaleDateString()} à ${timeSlot?.time}`
-      });
+      this.appointmentsService.createAppointment(newAppointment).subscribe({
+          next : (newAppointment) =>{
+                console.log(newAppointment);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Rendez-vous confirmé',
+                    detail: `Votre rendez-vous pour ${selectedServices.length} service(s) a été enregistré pour le ${new Date(formValue.date).toLocaleDateString()} à ${timeSlot?.time}`
+                });
+            },
+            error : (err) => this.handleError(err)
+        });
+        this.appointments.push(newAppointment);
+
       this.activeTabIndex = 0;
       this.appointmentForm.reset();
       this.currentStep = 0;
@@ -784,8 +814,8 @@ export class AppointmentBookingComponent implements OnInit {
 
   editAppointment(appointment: Appointment) {
     const vehicle = this.vehicles.find(v => v._id === appointment.vehicleId);
-    const timeSlot = this.timeSlots.find(slot => slot.time === this.formatTime(appointment.startTime));
-    const serviceIds = appointment.services.map(s => s.serviceType);
+    const timeSlot = this.timeSlots.find(slot => slot.time === this.formatTime(appointment.startTime!));
+    const serviceIds = appointment.services?.map(s => s.serviceType);
     if (vehicle && timeSlot) {
       this.appointmentForm.patchValue({
         vehicleId: vehicle._id,
@@ -794,7 +824,7 @@ export class AppointmentBookingComponent implements OnInit {
         timeSlotId: timeSlot.id,
         notes: appointment.notes
       });
-      this.updateAvailableTimeSlots(appointment.startTime);
+      this.updateAvailableTimeSlots(appointment.startTime!);
       this.activeTabIndex = 1;
       this.appointments = this.appointments.filter(a => a._id !== appointment._id);
     }
@@ -827,24 +857,33 @@ export class AppointmentBookingComponent implements OnInit {
   }
 
   // Méthode pour formater une date au format HH:mm
-  formatTime(date: Date): string {
+  formatTime(date: Date | string): string { // Accepter Date ou string
+    if (typeof date === 'string') {
+        date = new Date(date); // Convertir la chaîne en Date
+    }
+
+    if (!(date instanceof Date) || isNaN(date.getTime())) { // Vérifier si c'est une date valide
+        console.error("La valeur fournie n'est pas une Date valide :", date);
+        return "Invalid date";
+    }
+
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
-  }
+    }
 
   // Renvoie les véhicules ayant au moins un rendez-vous ancien (startTime < aujourd'hui)
   getVehiclesWithOldAppointments(): Vehicle[] {
     const today = new Date();
     return this.vehicles.filter(vehicle =>
-      this.appointments.some(app => app.vehicleId === vehicle._id && app.startTime < today)
+      this.appointments.some(app => app.vehicleId === vehicle._id && app.startTime! < today)
     );
   }
 
   // Renvoie les rendez-vous anciens d'un véhicule donné
   getAppointmentsByVehicle(vehicleId: string): Appointment[] {
     const today = new Date();
-    return this.appointments.filter(app => app.vehicleId === vehicleId && app.startTime < today);
+    return this.appointments.filter(app => app.vehicleId === vehicleId && app.startTime! < today);
   }
 
   // Gestion du row expansion pour l'historique
@@ -866,16 +905,19 @@ export class AppointmentBookingComponent implements OnInit {
 
   // Génération de la facture en utilisant la structure Invoice
   viewInvoiceDetails(appointment: Appointment) {
-    const items = appointment.services.map(s => {
-      const service = this.serviceTypes.find(st => st._id === s.serviceType);
-      return {
-        type: 'service' as const,
-        description: service ? service.name : 'Service inconnu',
-        quantity: 1,
-        unitPrice: service ? service.baseCost : 0,
-        total: service ? service.baseCost : 0
-      };
-    });
+    let items: InvoiceItem[] = [];
+    if (appointment.services) {
+      items = appointment.services.map(s => {
+        const service = this.serviceTypes.find(st => st._id === s.serviceType);
+        return {
+          type: 'service' as const,
+          description: service ? service.name : 'Service inconnu',
+          quantity: 1,
+          unitPrice: service ? service.baseCost : 0,
+          total: service ? service.baseCost : 0
+        };
+      });
+    }
     if (appointment.partsUsed && appointment.partsUsed.length) {
       appointment.partsUsed.forEach(part => {
         // Exemple : fixer un prix unitaire pour la pièce (à remplacer par la donnée réelle)
@@ -895,7 +937,7 @@ export class AppointmentBookingComponent implements OnInit {
     this.factureSelectionnee = {
       _id: 'inv_' + appointment._id,
       appointmentId: appointment._id!,
-      clientId: appointment.clientId,
+      clientId: appointment.clientId!,
       invoiceNumber: 'INV-' + appointment._id,
       items: items,
       subtotal: subtotal,
@@ -906,5 +948,13 @@ export class AppointmentBookingComponent implements OnInit {
       dueDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
     };
     this.afficherFacture = true;
+  }
+
+  private handleError(err: any) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: err.message || 'Une erreur est survenue.'
+    });
   }
 }
