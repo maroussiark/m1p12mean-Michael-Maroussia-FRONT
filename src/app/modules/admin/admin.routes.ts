@@ -4,6 +4,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { ServiceManagementComponent } from './service/service-management';
 import { PlanningAppointmentComponent } from './planning-appointment/planning-appointment.component';
+import { PartListComponent } from './part-list/part-list.component';
 
 export default [
     { path: '', component: DashboardComponent },
@@ -11,6 +12,7 @@ export default [
     { path: 'service-management', component: ServiceManagementComponent },
     { path: 'planning-management', component: PlanningAppointmentComponent },
     { path: 'planning', component: PlanningGlobalComponent },
+    { path: 'part', component: PartListComponent },
     { path: '**', redirectTo: '/notfound' }
 
 ] as Routes;
