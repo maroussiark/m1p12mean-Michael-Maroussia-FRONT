@@ -18,9 +18,18 @@ export class AppointmentsService {
     return this.http.post<Appointment>(`${this.baseUrl}/`, appointment);
   }
 
+  updateAppointment(appointment: Appointment): Observable<Appointment> {
+    console.log(appointment);
+    return this.http.put<Appointment>(`${this.baseUrl}/${appointment._id}`, appointment);
+  }
+
   // 📌 Obtenir tous les rendez-vous d'un utilisateur (par ID utilisateur)
   getAppointmentsByUser(): Observable<Appointment[]> {
     return this.http.get<Appointment[]>(`${this.baseUrl}/user`);
+  }
+
+  getAppointmentsForMechanic(): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.baseUrl}/mechanic`);
   }
 
   // 📌 Obtenir tous les rendez-vous

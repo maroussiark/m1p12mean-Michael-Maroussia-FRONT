@@ -41,6 +41,7 @@ export class AppMenu {
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin'] },
                     { label: 'Utilisateur', icon: 'pi pi-fw pi-users', routerLink: ['/admin/user-management'] },
                     { label: 'Rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/planning-management'] },
+                    { label: 'Pieces', icon: 'pi pi-fw pi-wrench', routerLink: ['/admin/part'] },
                     { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/settings'] }
                 ]
             },
@@ -56,8 +57,8 @@ export class AppMenu {
             {
                 label: 'Mechanic Panel',
                 items: [
-                    { label: 'Tasks', icon: 'pi pi-fw pi-wrench', routerLink: ['/mechanic/tasks'] },
-                    { label: 'Schedule', icon: 'pi pi-fw pi-calendar', routerLink: ['/mechanic/schedule'] }
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/mechanic'] },
+                    { label: 'Rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/mechanic/intervention'] },
                 ]
             }
         ];

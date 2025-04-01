@@ -30,7 +30,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         canActivate: [AuthGuard],
         children: [{ path: '', loadChildren: () => import('./app/modules/mechanic/mechanic.routes') }],
-        data: { role: ['admin'] }
+        data: { role: ['mechanic'] }
     },
     {
         path: 'admin',

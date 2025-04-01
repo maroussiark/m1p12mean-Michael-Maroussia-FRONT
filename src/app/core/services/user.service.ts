@@ -35,4 +35,12 @@ export class UserService {
   deleteUser(userId: string): Observable<void> {
     return this.apiService.delete<void>(`${this.endpoint}/${userId}`);
   }
+
+  getAllMechanics(): Observable<User[]> {
+    return this.apiService.get<User[]>(`${this.endpoint}/mechanics`);
+  }
+
+  getAllClients(): Observable<User[]> {
+    return this.apiService.get<User[]>(`${this.endpoint}/users`);
+  }
 }

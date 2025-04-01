@@ -1,0 +1,138 @@
+<!-- part-list.component.html -->
+<div class="p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold text-gray-800">Gestion des Pièces</h1>
+      <button
+        pButton
+        label="Nouvelle Pièce"
+        icon="pi pi-plus"
+        class="p-button-success"
+        (click)="openNew()">
+      </button>
+    </div>
+
+    <p-toast></p-toast>
+
+    <p-table
+      [value]="parts"
+      [paginator]="true"
+      [rows]="10"
+      [loading]="loading"
+      styleClass="p-datatable-sm p-datatable-gridlines"
+      responsiveLayout="scroll"
+      [rowHover]="true">
+
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-100">
+          <th class="w-4/12">Nom</th>
+          <th class="w-4/12">Description</th>
+          <th class="w-2/12">Prix</th>
+          <th class="w-2/12">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-part>
+        <tr class="border-b border-gray-200">
+          <td>{{ part.name }}</td>
+          <td>{{ part.description || 'N/A' }}</td>
+          <td>{{ part.price | currency:'AR' }}</td>
+          <td>
+            <div class="flex gap-2">
+              <button
+                pButton
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-info p-button-sm"
+                (click)="editPart(part)">
+              </button>
+              <button
+                pButton
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-danger p-button-sm"
+                (click)="deletePart(part)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center p-4">
+            Aucune pièce trouvée.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-dialog
+      [(visible)]="displayDialog"
+      [style]="{width: '450px'}"
+      [header]="isNewPart ? 'Nouvelle Pièce' : 'Modifier Pièce'"
+      [modal]="true"
+      styleClass="p-fluid">
+
+      <form [formGroup]="partForm" (ngSubmit)="savePart()">
+        <div class="field mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom*</label>
+          <input
+            id="name"
+            type="text"
+            pInputText
+            formControlName="name"
+            class="w-full p-inputtext-sm"
+            [ngClass]="{'ng-invalid ng-dirty': partForm.controls['name'].invalid && partForm.controls['name'].touched}" />
+          <small
+            *ngIf="partForm.controls['name'].invalid && partForm.controls['name'].touched"
+            class="text-red-500">
+            Le nom est obligatoire.
+          </small>
+        </div>
+
+        <div class="field mb-4">
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            id="description"
+            pTextarea
+            formControlName="description"
+            rows="3"
+            class="w-full p-inputtext-sm">
+          </textarea>
+        </div>
+
+        <div class="field mb-4">
+          <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Prix*</label>
+          <p-inputNumber
+            id="price"
+            formControlName="price"
+            variant="filled"
+            [showButtons]="true"
+            [min]="0"
+            class="w-full">
+          </p-inputNumber>
+          <small
+            *ngIf="partForm.controls['price'].invalid && partForm.controls['price'].touched"
+            class="text-red-500">
+            Le prix est obligatoire et doit être positif.
+          </small>
+        </div>
+      </form>
+
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          label="Annuler"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="hideDialog()">
+        </button>
+        <button
+          pButton
+          label="Enregistrer"
+          icon="pi pi-check"
+          class="p-button-text"
+          [disabled]="partForm.invalid"
+          (click)="savePart()">
+        </button>
+      </ng-template>
+    </p-dialog>
+  </div>
