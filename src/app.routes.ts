@@ -7,6 +7,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { ClientLayout } from './app/modules/client/client.layout';
 import { AuthGuard } from './app/core/guards/auth.guards';
 import { HomeComponent } from './app/modules/client/home/home';
+import { NotificationsComponent } from './app/modules/notifications/notifications.component';
 
 export const appRoutes: Routes = [
     {
@@ -24,6 +25,14 @@ export const appRoutes: Routes = [
         component: ClientLayout,
         canActivate: [AuthGuard],
         children: [{ path: '', loadChildren: () => import('./app/modules/client/client.routes') }]
+    },
+    {
+        path: 'notifications',
+        component: AppLayout,
+        canActivate: [AuthGuard],
+        children: [
+        { path: '', component: NotificationsComponent }
+        ]
     },
     {
         path: 'mechanic',

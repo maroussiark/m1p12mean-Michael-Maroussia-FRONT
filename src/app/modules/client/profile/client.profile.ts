@@ -17,6 +17,7 @@ import { User, UserRole } from '../../../core/models/user.model';
 import { Vehicle } from '../../../core/models/vehicle.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { VehicleService } from '../../../core/services/vehicle.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-client-profile',
@@ -364,7 +365,7 @@ export class ClientProfileComponent implements OnInit {
   ];
   // Initial mock user data
   user: User = {
-    id: '1',
+    _id: '1',
     email: 'jean.dupont@example.com',
     role: UserRole.USER,
     profile: {
@@ -416,7 +417,7 @@ export class ClientProfileComponent implements OnInit {
   editedVehicle: Vehicle = this.initializeVehicle();
   vehicleDialogVisible: boolean = false;
 
-  constructor(private messageService: MessageService, private authService : AuthService,private vehicleService:VehicleService) {}
+  constructor(private messageService: MessageService, private authService : AuthService,private vehicleService:VehicleService,public router: Router) {}
 
   ngOnInit(): void {
     // Here you would typically load real user and vehicle data from a service
@@ -432,7 +433,7 @@ export class ClientProfileComponent implements OnInit {
 
   initializeVehicle(): Vehicle {
     return {
-      userId: this.user.id || '',
+      userId: this.user._id || '',
       make: '',
       model: '',
       year: new Date().getFullYear(),
@@ -563,10 +564,12 @@ export class ClientProfileComponent implements OnInit {
 
   scheduleService(vehicle: Vehicle): void {
     // Functionality to be implemented for scheduling maintenance
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Fonctionnalité à venir',
-      detail: 'La planification d\'entretien sera bientôt disponible'
-    });
+    // this.messageService.add({
+    //   severity: 'info',
+    //   summary: 'Fonctionnalité à venir',
+    //   detail: 'La planification d\'entretien sera bientôt disponible'
+    // });
+    this.router.navigate(['/client/appointment']);
+
   }
 }

@@ -49,10 +49,10 @@ interface ButtonConfig {
     providers: [MessageService],
     template: `
         <a class="flex items-center" href="/">
-            <svg class="w-10 h-10 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- <svg class="w-10 h-10 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13l2-2h14l2 2M3 13v5a1 1 0 001 1h1a1 1 0 001-1v-2a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 001 1h1a1 1 0 001-1v-5M5 13V7a1 1 0 011-1h12a1 1 0 011 1v6" />
-            </svg>
-            <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">AutoPro</span>
+            </svg> -->
+            <span class="text-surface-300 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">AutoPro</span>
         </a>
 
         <a pButton [text]="true" severity="secondary" [rounded]="true" pRipple class="lg:!hidden" pStyleClass="@next" enterClass="hidden" leaveToClass="hidden" [hideOnOutsideClick]="true">
@@ -62,7 +62,7 @@ interface ButtonConfig {
         <div class="items-center grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
             <ul class="list-none p-0 m-0 flex lg:items-center select-none flex-col lg:flex-row cursor-pointer gap-8">
                 <li *ngFor="let item of filteredMenuItems">
-                    <a (click)="navigate(item)" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                    <a (click)="navigate(item)" pRipple class="px-0 py-4 text-surface-300 dark:text-surface-0 font-medium text-xl">
                         <span>{{ item.label }}</span>
                     </a>
                 </li>
@@ -70,20 +70,13 @@ interface ButtonConfig {
 
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-4">
                 <!-- Notification Button - Only show when logged in -->
-                <button
-                    *ngIf="isLoggedIn"
-                    type="button"
-                    pButton
-                    pRipple
-                    icon="pi pi-bell"
-                    class="relative"
-                    (click)="toggleNotificationPanel($event)"
-                    pTooltip="Notifications"
-                    [text]="true"
-                    [rounded]="true"
-                >
-                    <p-overlaybadge *ngIf="unreadCount > 0" [value]="unreadCount.toString()" severity="danger"></p-overlaybadge>
-                </button>
+              <!-- Notification Button -->
+                    <button *ngIf="isLoggedIn" type="button" class="layout-topbar-action relative" (click)="toggleNotificationPanel($event)" pTooltip="Notifications" >
+                        <p-overlaybadge [value]="unreadCount > 0 ? unreadCount.toString() : null" severity="danger" >
+                            <i class="pi pi-bell" style="font-size: large"></i>
+                        </p-overlaybadge>
+                            <!-- <span class="notification-badge" *ngIf="unreadCount > 0" pBadge [value]="unreadCount.toString()" severity="danger"></span> -->
+                    </button>
 
                 <ng-container *ngIf="!isLoggedIn; else loggedInButtons">
                     <button *ngFor="let btn of buttonConfigs.loggedOut" pButton pRipple [icon]="btn.icon || ''" [label]="btn.label || ''" (click)="btn.action()" [rounded]="true" [text]="btn.style === 'text'"></button>
@@ -146,7 +139,7 @@ interface ButtonConfig {
                 </div>
 
                 <div *ngIf="notifications.length > 0" class="p-2 text-center border-t border-gray-200 dark:border-gray-700">
-                    <a routerLink="/notifications" class="text-sm text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                    <a [routerLink]="['/client/notification']" class="text-sm text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                         Voir toutes les notifications
                     </a>
                 </div>
@@ -171,25 +164,25 @@ export class TopbarWidget implements OnInit, OnDestroy {
     ) {}
 
     menuItems: MenuItem[] = [
-        {
-            label: 'Rendez-vous',
-            routerLink: ['/client/appointment'],
-            condition: () => this.isLoggedIn
-        },
-        {
-            label: 'Service',
-            routerLink: ['/'],
-            fragment: 'features',
-            condition: () => !this.isLoggedIn
-        }
+        // {
+        //     label: 'Rendez-vous',
+        //     routerLink: ['/client/appointment'],
+        //     condition: () => this.isLoggedIn
+        // },
+        // {
+        //     label: 'Service',
+        //     routerLink: ['/'],
+        //     fragment: 'features',
+        //     condition: () => !this.isLoggedIn
+        // }
     ];
 
     ngOnInit(): void {
         this.authService.currentUserSubject.subscribe((user: User | null) => {
             this.isLoggedIn = !!user;
 
-            if (user && user.id) {
-                this.userId = user.id;
+            if (user && user._id) {
+                this.userId = user._id;
                 this.notificationService.setUserId(this.userId);
                 this.initializeNotifications();
             }
@@ -329,7 +322,13 @@ export class TopbarWidget implements OnInit, OnDestroy {
         ],
         loggedIn: <ButtonConfig[]>[
             {
-                label: 'Profil',
+                label:'Rendez-vous',
+                icon: 'pi pi-calendar-plus',
+                action: () => this.router.navigate(['/client/appointment']),
+                severity: 'warn'
+            },
+            {
+                // label: 'Profil',
                 icon: 'pi pi-user',
                 action: () => this.router.navigate(['/client/profile']),
                 severity: 'info'

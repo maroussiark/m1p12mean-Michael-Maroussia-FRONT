@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { NotificationService } from '../../core/services/notification.service';
 
   @Component({
     selector: 'app-notifications',
@@ -40,7 +41,7 @@ import { TableModule } from 'primeng/table';
       { field: 'actions', header: 'Actions' }
     ];
 
-    constructor() {}
+    constructor(private notificationService: NotificationService) {}
 
     ngOnInit(): void {
       this.loadNotifications();
@@ -68,6 +69,9 @@ import { TableModule } from 'primeng/table';
           createdAt: new Date()
         }
       ];
+      this.notificationService.getNotifications('').subscribe( notifications => {
+        this.notifications = notifications;
+      })
     }
 
     // Méthode pour obtenir la classe de badge en fonction du type
@@ -86,7 +90,7 @@ import { TableModule } from 'primeng/table';
       if (!notification.isRead) {
         notification.isRead = true;
         // En pratique, vous appelleriez un service backend
-        // this.notificationService.markAsRead(notification._id)
+        this.notificationService.markAsRead(notification._id!);
       }
     }
   }

@@ -139,8 +139,8 @@ export class AppTopbar implements OnInit, OnDestroy {
     ngOnInit(): void {
         // Récupérer l'ID de l'utilisateur connecté
         this.authService.currentUser.subscribe(user => {
-            if (user && user.id) { // Remplace _id par id si nécessaire
-                this.userId = user.id; // 🔥 Assure-toi que c'est bien _id et non id ou userId
+            if (user && user._id) { // Remplace _id par id si nécessaire
+                this.userId = user._id; // 🔥 Assure-toi que c'est bien _id et non id ou userId
                 this.notificationService.setUserId(this.userId);
             } else {
                 console.log('Utilisateur non trouvé ou ID manquant.');
@@ -210,9 +210,10 @@ export class AppTopbar implements OnInit, OnDestroy {
         }
 
         // Si la notification a un lien, naviguer vers ce lien
-        // if (notification.link) {
-        //     this.router.navigate([notification.link]);
-        // }
+        // console.log(notification);
+        if (notification.link) {
+            this.router.navigate([notification.link]);
+        }
     }
 
     markAllAsRead(): void {

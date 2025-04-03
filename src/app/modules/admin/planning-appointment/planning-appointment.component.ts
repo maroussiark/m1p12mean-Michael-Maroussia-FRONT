@@ -124,7 +124,7 @@ export class PlanningAppointmentComponent implements OnInit {
         if(typeof mechanicId != 'string'){
             return  `${mechanicId.profile?.firstName} ${mechanicId.profile?.lastName}` ;
         }
-        const mechanic = this.mechanics.find(m => m.id === mechanicId);
+        const mechanic = this.mechanics.find(m => m._id === mechanicId);
         return mechanic ? `${mechanic.profile?.firstName} ${mechanic.profile?.lastName}` : 'Mécanicien';
     }
 
@@ -199,9 +199,9 @@ export class PlanningAppointmentComponent implements OnInit {
 
     loadInitialData() {
         // Load data in correct sequence
-        this.loadClients();
         this.loadMechanics();
         this.loadServiceTypes();
+        this.loadClients();
         this.loadVehicles();
         // Load appointments last, as it may depend on the other data
         this.loadAppointments();
@@ -421,7 +421,7 @@ export class PlanningAppointmentComponent implements OnInit {
         // This is crucial for the edit functionality to work correctly
         if (appointment.clientId) {
             const clientId = typeof appointment.clientId === 'string' ?
-                appointment.clientId : (appointment.clientId as unknown as User).id;
+                appointment.clientId : (appointment.clientId as unknown as User)._id;
             if (clientId) {
                 this.filterVehiclesByClient(clientId);
             }
@@ -430,11 +430,11 @@ export class PlanningAppointmentComponent implements OnInit {
         this.appointmentForm.patchValue({
             _id: appointment._id,
             clientId: typeof appointment.clientId === 'string' ?
-                appointment.clientId : (appointment.clientId as unknown as User)?.id,
+                appointment.clientId : (appointment.clientId as unknown as User)?._id,
             vehicleId: typeof appointment.vehicleId === 'string' ?
                 appointment.vehicleId : (appointment.vehicleId as unknown as Vehicle)?._id,
             mechanics: appointment.mechanics
-                ? appointment.mechanics.map(m => typeof m === 'string' ? m : (m as User).id)
+                ? appointment.mechanics.map(m => typeof m === 'string' ? m : (m as User)._id)
                 : [],
             startTime: new Date(appointment.startTime!),
             endTime: appointment.endTime ? new Date(appointment.endTime) : null,
@@ -737,7 +737,7 @@ export class PlanningAppointmentComponent implements OnInit {
     }
 
     getVehicleWithOwner(vehicle: Vehicle): string {
-        const owner = this.clients.find(c => c.id === vehicle.userId);
+        const owner = this.clients.find(c => c._id === vehicle.userId);
         const ownerName = owner ? this.getClientFullName(owner) : 'Propriétaire inconnu';
         return `${vehicle.make} ${vehicle.model} (${vehicle.licensePlate}) - ${ownerName}`;
     }

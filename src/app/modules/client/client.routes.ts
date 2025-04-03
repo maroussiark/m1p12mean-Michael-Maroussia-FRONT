@@ -14,6 +14,6 @@ export default [
     { path: 'invoice', component: InvoiceHistoryComponent },
     { path: '', component: HomeComponent },
     { path: 'auth', component: AuthComponent },
-    { path: 'not', component: NotificationsComponent },
+    { path: 'notification', component: NotificationsComponent },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;
