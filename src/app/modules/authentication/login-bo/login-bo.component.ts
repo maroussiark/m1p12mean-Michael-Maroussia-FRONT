@@ -33,7 +33,6 @@ export class LoginBoComponent {
       console.log('Soumission du formulaire', this.loginForm.value);
       this.authService.login(email, password).subscribe(
         user => {
-          console.log('Staff connecté', user);
           this.router.navigate([`/${user.role}`]);
           // Rediriger vers l'URL de retour ou le dashboard
           // this.router.navigateByUrl(this.returnUrl);

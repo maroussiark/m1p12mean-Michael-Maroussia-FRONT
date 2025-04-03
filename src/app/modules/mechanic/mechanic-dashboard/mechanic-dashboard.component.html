@@ -23,7 +23,7 @@
             <!-- Contenu du dashboard -->
             <main class="p-6">
                 <!-- Statistiques rapides -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div class="bg-white rounded-lg shadow p-4">
                         <div class="flex items-center">
                             <div class="mr-4 p-3 bg-blue-100 rounded-full">
@@ -57,17 +57,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <div class="flex items-center">
-                            <div class="mr-4 p-3 bg-red-100 rounded-full">
-                                <i class="pi pi-exclamation-circle text-red-600 text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-gray-500 text-sm">Urgences</h3>
-                                <p class="text-2xl font-bold">{{ statistiques.urgences }}</p>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Rendez-vous du jour -->
@@ -126,11 +116,7 @@
                                         <p class="text-xs text-gray-500">Estimé: {{ intervention.dureeEstimee }}</p>
                                     </div>
                                 </div>
-                                <div class="mt-2">
-                                    <p-progressBar [value]="intervention.progression"
-                                        [styleClass]="getProgressBarClass(intervention.type)"
-                                        [style]="{'height': '0.5rem'}"></p-progressBar>
-                                </div>
+
                             </div>
                         </div>
                     </div>
