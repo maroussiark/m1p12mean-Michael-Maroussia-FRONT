@@ -42,7 +42,7 @@ export class AppMenu {
                     { label: 'Utilisateur', icon: 'pi pi-fw pi-users', routerLink: ['/admin/user-management'] },
                     { label: 'Rendez-vous', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/planning-management'] },
                     { label: 'Pieces', icon: 'pi pi-fw pi-wrench', routerLink: ['/admin/part'] },
-                    { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/settings'] }
+                    { label: 'Services', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/service-management'] }
                 ]
             },
             {

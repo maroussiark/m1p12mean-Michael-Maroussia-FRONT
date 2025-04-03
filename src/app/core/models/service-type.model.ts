@@ -4,6 +4,6 @@ export interface ServiceType {
     name: string;
     description?: string;
     defaultDuration: number;
-    requiredSpecialties: string[];
+    requiredSpecialties?: string[];
     baseCost: number;
 }
