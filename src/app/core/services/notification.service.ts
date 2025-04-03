@@ -11,7 +11,8 @@ import { ApiService } from './api.service';
 export class NotificationService {
   private socket: Socket;
   private apiUrl = `/notifications`;
-  private socketUrl = 'http://localhost:5000';
+  private socketUrl = 'https://m1p12mean-michael-maroussia-back.onrender.com';
+//   private socketUrl = 'http://localhost:5000';
   private userId: string = '';
 
   private notificationsSubject = new BehaviorSubject<Notification[]>([]);
