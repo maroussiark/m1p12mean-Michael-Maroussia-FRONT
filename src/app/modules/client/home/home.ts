@@ -42,7 +42,7 @@ interface PromotionCard {
     standalone: true,
     imports: [CommonModule, RouterModule, ButtonModule, CardModule, DividerModule, CarouselModule, TagModule, ProgressBarModule, RippleModule, AppFooter, TopbarWidget],
     template: `
-        <topbar-widget class="fixed top-0 left-0 right-0 w-full py-6 px-6 flex items-center justify-between bg-gradient-to-r from-white via-gray-100 to-white shadow-lg z-50 text-gray-800" />
+<topbar-widget class="fixed top-0 left-0 right-0 w-full py-6 px-6 flex items-center justify-between bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-lg z-50 text-white" />
 
         <!-- Hero Section -->
         <div class="hero-section relative mt-10">
@@ -96,7 +96,7 @@ interface PromotionCard {
                             </div>
                             <p class="text-gray-600 mb-6">{{ service.description }}</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-lg font-bold text-blue-600">{{ service.price }}€</span>
+                                <span class="text-lg font-bold text-blue-600">{{ service.price }} AR</span>
                                 <button pButton label="Réserver" class="p-button-sm" icon="pi pi-arrow-right" iconPos="right" [routerLink]="['/rendez-vous']"></button>
                             </div>
                         </div>

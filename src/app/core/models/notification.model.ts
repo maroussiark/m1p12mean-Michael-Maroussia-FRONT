@@ -12,6 +12,7 @@ export interface Notification {
     type: NotificationType;
     message: string;
     relatedEntityId: string;
+    link?:string;
     isRead?: boolean;
     createdAt?: Date;
 }

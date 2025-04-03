@@ -170,7 +170,7 @@ import { AppointmentsService } from '../../../core/services/appointments.service
                 <p class="text-sm text-gray-600 mb-2">{{ service.description }}</p>
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-500">Durée: {{ service.defaultDuration }} min</span>
-                  <span class="font-medium">€{{ service.baseCost }}</span>
+                  <span class="font-medium">{{ service.baseCost.toLocaleString() }} AR</span>
                 </div>
               </div>
             </div>
@@ -397,21 +397,21 @@ import { AppointmentsService } from '../../../core/services/appointments.service
         <tbody>
           <tr *ngFor="let item of factureSelectionnee.items" class="border-b">
             <td class="py-2">{{ item.description }} ({{ item.type }})</td>
-            <td class="text-right py-2">{{ item.total | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td class="text-right py-2">{{ item.total }}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td class="py-2 font-bold">Total HT</td>
-            <td class="text-right py-2">{{ factureSelectionnee.subtotal | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td class="text-right py-2">{{ factureSelectionnee.subtotal.toLocaleString()  }}</td>
           </tr>
           <tr>
             <td class="py-2 font-bold">TVA ({{ factureSelectionnee.taxRate }}%)</td>
-            <td class="text-right py-2">{{ (factureSelectionnee.totalAmount - factureSelectionnee.subtotal) | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td class="text-right py-2">{{ (factureSelectionnee.totalAmount - factureSelectionnee.subtotal).toLocaleString()  }}</td>
           </tr>
           <tr>
             <td class="py-2 font-bold text-lg">Total TTC</td>
-            <td class="text-right py-2 font-bold text-lg">{{ factureSelectionnee.totalAmount | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td class="text-right py-2 font-bold text-lg">{{ factureSelectionnee.totalAmount.toLocaleString() }}</td>
           </tr>
         </tfoot>
       </table>

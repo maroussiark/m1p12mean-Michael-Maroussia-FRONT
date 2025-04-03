@@ -29,7 +29,7 @@ export class UserService {
   }
 
   updateUser(user: User): Observable<User> {
-    return this.apiService.put<User>(`${this.endpoint}/${user.id}`, user);
+    return this.apiService.put<User>(`${this.endpoint}/${user._id}`, user);
   }
 
   deleteUser(userId: string): Observable<void> {
