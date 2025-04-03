@@ -44,4 +44,12 @@ export class ApiService {
       finalize(() => this.loadingService.hide())
     );
   }
+
+  patch<T>(endpoint: string, body: any): Observable<T> {
+    this.loadingService.show();
+    return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body).pipe(
+      finalize(() => this.loadingService.hide())
+    );
+  }
+
 }

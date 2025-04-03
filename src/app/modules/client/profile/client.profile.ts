@@ -364,7 +364,7 @@ export class ClientProfileComponent implements OnInit {
   ];
   // Initial mock user data
   user: User = {
-    _id: '1',
+    id: '1',
     email: 'jean.dupont@example.com',
     role: UserRole.USER,
     profile: {
@@ -432,7 +432,7 @@ export class ClientProfileComponent implements OnInit {
 
   initializeVehicle(): Vehicle {
     return {
-      userId: this.user._id || '',
+      userId: this.user.id || '',
       make: '',
       model: '',
       year: new Date().getFullYear(),

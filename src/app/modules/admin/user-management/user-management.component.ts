@@ -132,7 +132,7 @@ export class UserManagementComponent implements OnInit {
       isActive: this.userForm.value.isActive
     };
 
-    if (this.selectedUser?._id) {
+    if (this.selectedUser?.id) {
       this.updateUser(userData);
     } else {
       this.createUser(userData);
@@ -157,7 +157,7 @@ export class UserManagementComponent implements OnInit {
   updateUser(userData: User) {
     this.userService.updateUser(userData).subscribe({
       next: (updatedUser) => {
-        const index = this.users.findIndex(u => u._id === updatedUser._id);
+        const index = this.users.findIndex(u => u.id === updatedUser.id);
         if (index !== -1) {
           this.users[index] = updatedUser;
         }
@@ -176,7 +176,7 @@ export class UserManagementComponent implements OnInit {
     const updatedUser = { ...user, isActive: !user.isActive };
     this.userService.updateUser(updatedUser).subscribe({
       next: (result) => {
-        const index = this.users.findIndex(u => u._id === result._id);
+        const index = this.users.findIndex(u => u.id === result.id);
         if (index !== -1) {
           this.users[index] = result;
         }
