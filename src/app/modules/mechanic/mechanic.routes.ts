@@ -5,7 +5,7 @@ import { Routes } from '@angular/router';
 
 export default [
     { path: '', component: MechanicDashboardComponent },
-    { path: '/notification', component: NotificationsComponent },
+    { path: 'notification', component: NotificationsComponent },
     { path: 'intervention', component: InterventionComponent },
     { path: '**', redirectTo: '/notfound' }
 
